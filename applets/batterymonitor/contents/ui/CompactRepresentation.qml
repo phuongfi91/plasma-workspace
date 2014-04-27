@@ -31,14 +31,14 @@ ListView {
     Layout.minimumWidth: isConstrained() ? units.iconSizes.medium : 24 // NOTE: Keep in sync with systray
     Layout.minimumHeight: isConstrained() ? minimumHeight * view.count : 24
 
-    property bool hasBattery: pmSource.data["Battery"]["Has Battery"]
+    property QtObject batteries
 
     /*property QtObject pmSource: batterymonitor.pmSource
     property QtObject batteries: batterymonitor.batteries*/
 
-    property bool singleBattery: isConstrained() || !hasBattery
+    property bool singleBattery: isConstrained() //|| view.batteries.count === 0
 
-    model: singleBattery ? 1 : batteries
+    model: singleBattery ? 1 : view.batteries
 
     anchors.fill: parent
     orientation: ListView.Horizontal
@@ -51,9 +51,9 @@ ListView {
     delegate: Item {
         id: batteryContainer
 
-        property bool hasBattery: view.singleBattery ? batteries.count : model["Plugged in"]
-        property int percent: view.singleBattery ? batteries.cumulativePercent : model["Percent"]
-        property bool pluggedIn: view.singleBattery ? pmSource.data["AC Adapter"]["Plugged in"] : pmSource.data["AC Adapter"]["Plugged in"] && model["Is Power Supply"]
+        property bool hasBattery: view.singleBattery ? true : true//view.batteries.count > 0 : model.device.present
+        property int percent: view.singleBattery ? view.batteries.cumulativePercent : model.device.chargePercent
+        property bool pluggedIn: view.singleBattery ? pmSource.data["AC Adapter"]["Plugged in"] : pmSource.data["AC Adapter"]["Plugged in"] && model.device.powerSupply
 
         width: view.width/view.count
         height: view.height

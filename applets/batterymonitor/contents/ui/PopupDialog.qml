@@ -21,6 +21,7 @@
 import QtQuick 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as Components
+import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.kquickcontrolsaddons 2.0
 import "plasmapackage:/code/logic.js" as Logic
 
@@ -33,7 +34,6 @@ FocusScope {
     property bool pluggedIn
 
     property int remainingTime
-    property bool showRemainingTime
 
     property bool isBrightnessAvailable
     property alias screenBrightness: brightnessSlider.value
@@ -44,7 +44,7 @@ FocusScope {
     property alias keyboardBrightnessPercentage: keyboardBrightnessSlider.percentage
 
     signal brightnessChanged(int screenBrightness)
-//    signal keyboardBrightnessChanged(int keyboardBrightness)
+    //signal keyboardBrightnessChanged(int keyboardBrightness)
     signal powermanagementChanged(bool checked)
 
     PlasmaCore.FrameSvgItem {
@@ -53,6 +53,11 @@ FocusScope {
         prefix: "hover"
         opacity: 0
     }
+
+    PlasmaExtras.ScrollArea {
+        anchors.fill: parent
+        Flickable {
+
 
     Column {
         id: batteryColumn
@@ -74,37 +79,6 @@ FocusScope {
             delegate: BatteryItem { }
             KeyNavigation.tab: brightnessSlider
             KeyNavigation.backtab: pmSwitch
-
-            function updateSelection(old,active) {
-                itemAt(old).updateSelection();
-                itemAt(active).updateSelection();
-            }
-
-            onFocusChanged: {
-                var oldIndex = activeIndex;
-                activeIndex = 0;
-                updateSelection(oldIndex,activeIndex);
-            }
-            Keys.onDownPressed: {
-                var oldIndex = activeIndex;
-                activeIndex++;
-                if (activeIndex >= model.count) {
-                    activeIndex = 0;
-                }
-                updateSelection(oldIndex,activeIndex);
-            }
-            Keys.onUpPressed: {
-                var oldIndex = activeIndex;
-                activeIndex--;
-                if (activeIndex < 0) {
-                    activeIndex = model.count-1;
-                }
-                updateSelection(oldIndex,activeIndex);
-            }
-            Keys.onReturnPressed: itemAt(activeIndex).expanded = !itemAt(activeIndex).expanded
-            Keys.onSpacePressed: itemAt(activeIndex).expanded = !itemAt(activeIndex).expanded
-            Keys.onLeftPressed: itemAt(activeIndex).expanded = false
-            Keys.onRightPressed: itemAt(activeIndex).expanded = true
         }
     }
 
@@ -127,7 +101,7 @@ FocusScope {
             visible: isBrightnessAvailable
             onChanged: brightnessChanged(value)
             KeyNavigation.tab: keyboardBrightnessSlider
-            KeyNavigation.backtab: batteryList
+            KeyNavigation.backtab: pmSwitch
             focus: true
         }
 
@@ -143,8 +117,16 @@ FocusScope {
 
         PowerManagementItem {
             id: pmSwitch
-            onEnabledChanged: powermanagementChanged(enabled)
-            KeyNavigation.tab: batteryList
+            onEnabledChanged: {
+                console.log("I will now do stuff that will kill myself miserably")
+                for(var i = 0; i < batteriesModel.count; ++i) {
+                    console.log("SWITCH GETTING BATTERY NUMBER " + i + " OF " + batteriesModel.count)
+                    var b = batteriesModel.get(i)
+                    console.log(b.vendor  + " - " + b.product)
+                }
+             //   powermanagementChanged(enabled)
+            }
+            KeyNavigation.tab: brightnessSlider
             KeyNavigation.backtab: keyboardBrightnessSlider
         }
     }
@@ -185,4 +167,7 @@ FocusScope {
             bottomMargin: 5
         }
     }
+
+        } // flickable
+    } // scrollview
 }

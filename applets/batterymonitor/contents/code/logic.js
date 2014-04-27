@@ -21,61 +21,68 @@
 var powermanagementDisabled = false;
 
 function updateCumulative() {
+    return
     var sum = 0;
     var count = 0;
     var charged = true;
-    var plugged = false;
-    for (var i=0; i<batteries.count; i++) {
-        var b = batteries.get(i);
-        if (!b["Is Power Supply"]) {
-          continue;
+    var present = false;
+    for(var i = 0; i < batteriesModel.count; ++i) {
+        console.log("LOGICGETTING BATTERY NUMBER " + i + " OF " + batteriesModel.count)
+        var b = batteriesModel.get(i)
+        if (!b.powerSupply) {
+            continue;
         }
-        if (b["Plugged in"]) {
-            sum += b["Percent"];
-            plugged = true;
+        if (b.present) {
+            sum += b.chargePercent;
+            present = true;
         }
-        if (b["State"] != "NoCharge") {
+        // FIXME Use proper enum
+        // NOTE Maybe we should consider noCharge as full too?
+        if (b.chargeState != 3) {
             charged = false;
         }
-        count++;
+        ++count;
     }
 
     if (count > 0) {
-      batteries.cumulativePercent = Math.round(sum/count);
+        batteriesModel.cumulativePercent = Math.round(sum/count);
     } else {
         // We don't have any power supply batteries
         // Use the lowest value from any battery
-        if (batteries.count > 0) {
+        if (batteriesModel.count > 0) {
             var b = lowestBattery();
-            batteries.cumulativePercent = b["Percent"];
+            batteriesModel.cumulativePercent = b.chargePercent;
         } else {
-            batteries.cumulativePercent = 0;
+            batteriesModel.cumulativePercent = 0;
         }
     }
-    batteries.cumulativePluggedin = plugged;
-    batteries.allCharged = charged;
+
+    batteriesModel.cumulativePresent = present;
+    batteriesModel.allCharged = charged;
 }
 
 function plasmoidStatus() {
-    var status = "PassiveStatus";
+    return
+    var status = PlasmaCore.Types.PassiveStatus;
     if (powermanagementDisabled) {
-        status = "ActiveStatus";
+        status = PlasmaCore.Types.ActiveStatus;
     }
 
-    if (batteries.cumulativePluggedin) {
-        if (!batteries.allCharged) {
-            status = "ActiveStatus";
+    if (batteriesModel.cumulativePresent) {
+        if (!batteriesModel.allCharged) {
+            status = PlasmaCore.Types.ActiveStatus;
         }
-    } else if (batteries.count > 0) { // in case your mouse gets low
-        if (batteries.cumulativePercent && batteries.cumulativePercent <= 10) {
-            status = "NeedsAttentionStatus";
+    } else if (batteriesModel.count > 0) { // in case your mouse gets low
+        if (batteriesModel.cumulativePercent && batteriesModel.cumulativePercent <= 10) {
+            status = PlasmaCore.Types.NeedsAttentionStatus;
         }
     }
     return status;
 }
 
 function lowestBattery() {
-    if (batteries.count == 0) {
+    return
+    if (batteriesModel.count == 0) {
         return;
     }
 
@@ -91,13 +98,35 @@ function lowestBattery() {
     return b;
 }
 
+function nameForBattery(batteryData) {
+    if (batteryData.powerSupply) {
+        // FIXME Use proper enum
+        if (batteryData.type == 2) {
+            return i18n("UPS Battery")
+        }
+        return i18n("Battery")
+    }
+    if (batteryData.vendor && batteryData.product) {
+        return i18nc("Placeholders are vendor and model", "%1 %2", batteryData.vendor, batteryData.product)
+    }
+    if (batteryData.vendor) {
+        return model.device.vendor
+    }
+    if (batteryData.product) {
+        return model.device.product
+    }
+    return batteryData.description
+}
+
+
 function stringForBatteryState(batteryData) {
-    if (batteryData["Plugged in"]) {
-        switch(batteryData["State"]) {
-            case "NoCharge": return i18n("Fully Charged");//return i18n("Not Charging");
-            case "Discharging": return i18n("Discharging");
-            case "FullyCharged": return i18n("Fully Charged");
-            default: return i18n("Charging");
+    if (batteryData.present) {
+        switch(batteryData.chargeState) {
+            // FIXME Use proper enums
+            case 0: return i18n("Not Charging")
+            case 1: return i18n("Charging")
+            case 2: return i18n("Discharging")
+            case 3: return i18n("Fully Charged")
         }
     } else {
         return i18nc("Battery is currently not present in the bay","Not present");
@@ -105,50 +134,42 @@ function stringForBatteryState(batteryData) {
 }
 
 function iconForBattery(batteryData,pluggedIn) {
-    switch(batteryData["Type"]) {
-        case "Monitor":
+    switch(batteryData.type) {
+        // FIXME Use proper enums
+        case 9: // MonitorBattery
             return "video-display";
-        case "Mouse":
+        case 4:
             return "input-mouse";
-        case "Keyboard":
+        case 5:
             return "input-keyboard";
-        case "Pda":
+        case 1:
             return "pda";
-        case "Phone":
+        case 8:
             return "phone";
-        default: // Primary and UPS
-            var p = batteryData["Percent"];
+        case 7:
+            return "camera-photo"; // Could be webcam?
+        case 2: // Ups
+            return "battery"
+        case 0: // Unknown
+            return "battery"
+        case 3: // Primary
+            var p = batteryData.chargePercent
 
-            var fill;
-            if (p >= 90) {
-                fill = "100";
-            } else if (p >= 70) {
-                fill = "080";
-            } else if (p >= 50) {
-                fill = "060";
-            } else if (p >= 30) {
-                fill = "040";
-            } else if (p >= 10) {
-                fill = "caution";
+            if (p <= 5) {
+                return "dialog-warning"
+            } else if (batteryData.powerSupply) {
+                return "computer-laptop"
             } else {
-                fill = "low";
-            }
-
-            if (pluggedIn && batteryData["Is Power Supply"]) {
-                return "battery-charging-" + fill;
-            } else {
-                if (p <= 5) {
-                    return "dialog-warning"
-                }
-                return "battery-" + fill;
+                return "battery"
             }
     }
 }
 
 function updateTooltip() {
+    return
     var image = "";
     var text = "";
-    if (batteries.count == 0) {
+    if (batteriesModel.count === 0) {
         image = "battery-missing";
         if (!powermanagementDisabled) {
             text = i18n("No batteries available");
@@ -157,20 +178,22 @@ function updateTooltip() {
         var hasPowerSupply = false;
 
         text = "<table style='white-space: nowrap'>";
-        for(var i=0; i<batteries.count; i++) {
-            var b = batteries.get(i);
+        for(var i = 0; i < batteriesModel.count; ++i) {
+            var b = batteriesModel.get(i);
             text += "<tr>";
-            text += "<td align='right'>" + i18nc("Placeholder is battery name", "%1:", b["Pretty Name"]) + " </td>";
+            text += "<td align='right'>" + i18nc("Placeholder is battery name", "%1:", nameForBattery(b)) + " </td>";
             text += "<td><b>";
-            if (b["Plugged in"]) {
-                text += i18nc("Placeholder is battery percentage", "%1%", b["Percent"]);
+            if (b.present) {
+                text += i18nc("Placeholder is battery percentage", "%1%", b.chargePercent);
             } else {
                 text += i18n("N/A")
             }
             text += "</b></td>";
             text += "</tr>";
 
-            if (b["Is Power Supply"]) { hasPowerSupply = true; }
+            if (b.powerSupply) {
+                hasPowerSupply = true;
+            }
         }
         text += "</table>";
 
@@ -192,11 +215,57 @@ function updateTooltip() {
     batteries.tooltipImage = image;
 }
 
+function batteryItemTooltip(batteryData, pluggedIn) {
+    var text = "";
+
+    var remainingTime = (pluggedIn ? batteryData.timeToFull : batteryData.timeToEmpty) * 1000;
+
+    // FIXME Use proper enum
+    if (batteryData.powerSupply && batteryData.chargeState != 0 && batteryData.chargeState != 3 && remainingTime > 0) {
+        text += "<tr>";
+        text += "<td align='right'>" + (pluggedIn ? i18n("Time To Full:") : i18n("Time To Empty:")) + " </td>";
+        text += "<td><b>" + formats.formatSpelloutDuration(remainingTime) + "</b></td>";
+        text += "</tr>";
+    }
+
+    if (batteryData.powerSupply && batteryData.capacity > 0) {
+        text += "<tr>";
+        text += "<td align='right'>" + i18n("Capacity:") + " </td>";
+        text += "<td><b>" + i18nc("Placeholder is battery capacity", "%1%", batteryData.capacity) + "</b></td>"
+        text += "</tr>";
+    }
+
+    // Non-powersupply batteries usually have a name consisting of the vendor and model name
+    if (batteryData.powerSupply) {
+        if (batteryData.vendor) {
+            text += "<tr>";
+            text += "<td align='right'>" + i18n("Vendor:") + " </td>";
+            text += "<td><b>" + batteryData.vendor + "</b></td>";
+            text += "</tr>";
+        }
+
+        if (batteryData.product) {
+            text += "<tr>";
+            text += "<td align='right'>" + i18n("Model:") + " </td>";
+            text += "<td><b>" + batteryData.product + "</b></td>";
+            text += "</tr>";
+        }
+    }
+
+    //text += "<tr><td align='right'>Additional Row: </td><td><b>This is just for testing</b></td></tr>";
+
+    if (text != "") {
+        return "<table style='white-space: nowrap'>" + text + "</table>";
+    }
+    return "";
+}
+
 function updateBrightness(dialogItem, source) {
-    // we don't want passive brightness change send setBrightness call
     if (!source.data["PowerDevil"]) {
         return;
     }
+
+    // we don't want passive brightness change send setBrightness call
     dialogItem.disableBrightnessUpdate = true;
     if (typeof source.data["PowerDevil"]["Screen Brightness"] === 'number') {
         dialogItem.screenBrightness = source.data["PowerDevil"]["Screen Brightness"];

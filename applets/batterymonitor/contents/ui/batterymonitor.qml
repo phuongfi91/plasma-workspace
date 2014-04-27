@@ -23,6 +23,7 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.solid 1.0 as Solid
 import "plasmapackage:/code/logic.js" as Logic
 
 Item {
@@ -34,28 +35,109 @@ Item {
     LayoutMirroring.childrenInherit: true
 
     Plasmoid.toolTipMainText: ""
-    Plasmoid.toolTipSubText: batteries.tooltipText
-    Plasmoid.icon: batteries.tooltipImage
+    Plasmoid.toolTipSubText: batteriesModel.tooltipText
+    Plasmoid.icon: batteriesModel.tooltipImage
 
     Component.onCompleted: {
         updateLogic();
     }
 
     function updateLogic() {
-        Logic.updateCumulative();
+        print("UPDATE LOGIC HAS BEEN CALLED")
+        var sum = 0;
+        var count = 0;
+        var charged = true;
+        var present = false;
+        print("I will now count batteries")
+
+        print(batteriesModel)
+//return
+        console.log(batteriesModel.get(0))
+
+
+
+
+                    return
+        for(var i = 0; i < 2; ++i) {
+            var b = batteriesModel.get(i)
+            console.log(b)
+        }
+        return
+
+        for(var i = 0; i < batteriesModel.count; ++i) {
+            console.log("BLAGETTING BATTERY NUMBER " + i + " OF " + batteriesModel.count)
+            var b = batteriesModel.get(i)
+            if (!b.powerSupply) {
+                continue;
+            }
+            if (b.present) {
+                sum += b.chargePercent;
+                present = true;
+            }
+            // FIXME Use proper enum
+            // NOTE Maybe we should consider noCharge as full too?
+            if (b.chargeState != 3) {
+                charged = false;
+            }
+            ++count;
+        }
+
+        if (count > 0) {
+            batteriesModel.cumulativePercent = Math.round(sum/count);
+        } else {
+            // We don't have any power supply batteries
+            // Use the lowest value from any battery
+            if (batteriesModel.count > 0) {
+                var b = lowestBattery();
+                batteriesModel.cumulativePercent = b.chargePercent;
+            } else {
+                batteriesModel.cumulativePercent = 0;
+            }
+        }
+
+        batteriesModel.cumulativePresent = present;
+        batteriesModel.allCharged = charged;
+return
+        //Logic.updateCumulative();
         plasmoid.status = Logic.plasmoidStatus();
 
         // this helps updating the status throughout the applet
         // without this, the applet doesn't switch from passive
         // to active. -- FIXME.
-        print(plasmoid.status);
-
+//        print(plasmoid.status);
         Logic.updateTooltip();
     }
 
-    Plasmoid.compactRepresentation: CompactRepresentation { }
+    Plasmoid.compactRepresentation: CompactRepresentation {
+        batteries: batteriesModel
+    }
 
-    property QtObject pmSource: PlasmaCore.DataSource {
+    Solid.Devices {
+        id: batteriesModel
+        query: "IS Battery"
+
+        Component.onDestruction: print("DESTROYED")
+
+        Component.onCompleted: {
+            console.log("SOLID DEVICES READY")
+            updateLogic() // FIXME React to changes too
+        }
+        onDeviceAdded: {
+            console.log("DIEWAISS ÄDDED")
+            updateLogic()
+        }
+
+        property int cumulativePercent
+        property bool cumulativePresent
+        // true  --> all batteries charged
+        // false --> one of the batteries charging/discharging
+        property bool allCharged
+
+        property string tooltipText
+        property string tooltipImage
+    }
+
+    /*property QtObject pmSource: PlasmaCore.DataSource {
         id: pmSource
         engine: "powermanagement"
         connectedSources: sources
@@ -93,12 +175,11 @@ Item {
 
         property int cumulativePercent
         property bool cumulativePluggedin
-        // true  --> all batteries charged
-        // false --> one of the batteries charging/discharging
+
         property bool allCharged
         property string tooltipText
         property string tooltipImage
-    }
+    }*/
 
     Plasmoid.fullRepresentation: PopupDialog {
         id: dialogItem
@@ -106,7 +187,8 @@ Item {
         Layout.minimumHeight: dialogItem.implicitHeight
         Layout.maximumHeight: dialogItem.implicitHeight
 
-        model: batteries
+        model: batteriesModel//batteries
+
         anchors.fill: parent
         focus: true
 
@@ -115,7 +197,6 @@ Item {
         isBrightnessAvailable: pmSource.data["PowerDevil"]["Screen Brightness Available"] ? true : false
         isKeyboardBrightnessAvailable: pmSource.data["PowerDevil"]["Keyboard Brightness Available"] ? true : false
 
-        showRemainingTime: Plasmoid.configuration.showRemainingTime
         remainingTime: Number(pmSource.data["Battery"]["Remaining msec"])
 
         pluggedIn: pmSource.data["AC Adapter"]["Plugged in"]

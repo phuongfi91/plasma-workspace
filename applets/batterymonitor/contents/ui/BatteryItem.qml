@@ -27,64 +27,26 @@ import "plasmapackage:/code/logic.js" as Logic
 
 Item {
     id: batteryItem
-    clip: true
+
     width: batteryColumn.width
-    height: expanded ? batteryInfos.height + padding.margins.top + padding.margins.bottom * 2 + actionRow.height
-                     : batteryInfos.height + padding.margins.top + padding.margins.bottom
-
-    Behavior on height { PropertyAnimation { duration: units.shortDuration * 2 } }
-
-    property bool expanded
+    height: batteryInfos.height + padding.margins.top + padding.margins.bottom
 
     // NOTE: According to the UPower spec this property is only valid for primary batteries, however
     // UPower seems to set the Present property false when a device is added but not probed yet
-    property bool isPresent: model["Plugged in"]
+    property bool isPresent: model.device.present
 
     property int remainingTime
-
-    function updateSelection() {
-        var hasFocus = batteryList.activeFocus && batteryList.activeIndex == index;
-        var containsMouse = mouseArea.containsMouse;
-
-        if (expanded && (hasFocus || containsMouse)) {
-            padding.opacity = 1;
-        } else if (expanded) {
-            padding.opacity = 0.8;
-        } else if (hasFocus || containsMouse) {
-            padding.opacity = 0.65;
-        } else {
-            padding.opacity = 0;
-        }
-    }
 
     KCoreAddons.Formats {
         id: formats
     }
 
-    PlasmaCore.FrameSvgItem {
-        id: padding
-        imagePath: "widgets/viewitem"
-        prefix: "hover"
-        opacity: 0
-        Behavior on opacity { PropertyAnimation {} }
+    PlasmaCore.ToolTipArea {
+        id: batteryTooltip
         anchors.fill: parent
-    }
-
-    onExpandedChanged: updateSelection()
-
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        hoverEnabled: true
-        onEntered: updateSelection()
-        onExited: updateSelection()
-        onClicked: {
-            var oldIndex = batteryList.activeIndex
-            batteryList.forceActiveFocus()
-            batteryList.activeIndex = index
-            batteryList.updateSelection(oldIndex,index)
-            expanded = !expanded
-        }
+        icon: batteryIcon.icon
+        mainText: batteryNameLabel.text
+        subText: Logic.batteryItemTooltip(model.device, pluggedIn)
     }
 
     Item {
@@ -96,7 +58,7 @@ Item {
             topMargin: padding.margins.top
             left: parent.left
             leftMargin: padding.margins.left
-              right: parent.right
+            right: parent.right
             rightMargin: padding.margins.right
         }
 
@@ -108,12 +70,13 @@ Item {
                 verticalCenter: parent.verticalCenter
                 left: parent.left
             }
-            icon: Logic.iconForBattery(model,pluggedIn)
+            icon: Logic.iconForBattery(model.device, pluggedIn)
         }
 
         SequentialAnimation {
           id: chargeAnimation
-          running: units.longDuration > 0 && model["State"] == "Charging" && model["Is Power Supply"]
+          // FIXME use proper enum
+          running: units.longDuration > 0 && model.device.chargeState === 1 && model.device.powerSupply
           alwaysRunToEnd: true
           loops: Animation.Infinite
 
@@ -145,7 +108,7 @@ Item {
             }
             height: implicitHeight
             elide: Text.ElideRight
-            text: model["Pretty Name"]
+            text: Logic.nameForBattery(model.device)
         }
 
         Components.Label {
@@ -155,10 +118,10 @@ Item {
                 left: batteryNameLabel.right
                 leftMargin: 3
             }
-            text: Logic.stringForBatteryState(model)
+            text: Logic.stringForBatteryState(model.device)
             height: implicitHeight
-            visible: model["Is Power Supply"]
-            color: "#77"+(theme.textColor.toString().substr(1))
+            visible: model.device.powerSupply
+            enabled: false
         }
 
         Components.ProgressBar {
@@ -173,7 +136,7 @@ Item {
             minimumValue: 0
             maximumValue: 100
             visible: isPresent
-            value: parseInt(model["Percent"])
+            value: parseInt(model.device.chargePercent)
         }
 
         Components.Label {
@@ -183,93 +146,7 @@ Item {
                 right: parent.right
             }
             visible: isPresent
-            text: i18nc("Placeholder is battery percentage", "%1%", model["Percent"])
-        }
-    }
-
-    Column {
-        id: actionRow
-        opacity: expanded ? 1 : 0
-        width: parent.width
-        anchors {
-          top: batteryInfos.bottom
-          topMargin: padding.margins.bottom
-          left: parent.left
-          leftMargin: padding.margins.left
-          right: parent.right
-          rightMargin: padding.margins.right
-          bottomMargin: padding.margins.bottom
-        }
-        spacing: 4
-        Behavior on opacity { PropertyAnimation {} }
-
-        PlasmaCore.SvgItem {
-            svg: PlasmaCore.Svg {
-                id: lineSvg
-                imagePath: "widgets/line"
-            }
-            elementId: "horizontal-line"
-            height: lineSvg.elementSize("horizontal-line").height
-            width: parent.width
-        }
-
-        Row {
-            id: detailsRow
-            width: parent.width
-            spacing: 4
-
-            Column {
-                id: labelsColumn
-
-                DetailsLabel {
-                    // FIXME Bound to AC adapter plugged in, not battery charging, see below
-                    text: pluggedIn ? i18n("Time To Full:") : i18n("Time To Empty:")
-                    horizontalAlignment: Text.AlignRight
-                    visible: remainingTimeLabel.visible
-                }
-                DetailsLabel {
-                    text: i18n("Capacity:")
-                    horizontalAlignment: Text.AlignRight
-                    visible: capacityLabel.visible
-                }
-                DetailsLabel {
-                    text: i18n("Vendor:")
-                    horizontalAlignment: Text.AlignRight
-                    visible: vendorLabel.visible
-                }
-                DetailsLabel {
-                    text: i18n("Model:")
-                    horizontalAlignment: Text.AlignRight
-                    visible: modelLabel.visible
-                }
-            }
-
-            Column {
-                width: parent.width - labelsColumn.width - parent.spacing * 2
-                DetailsLabel {
-                    id: remainingTimeLabel
-                    // FIXME Uses overall remaining time, not bound to individual battery
-                    text: formats.formatSpelloutDuration (dialogItem.remainingTime)
-                    visible: model["Is Power Supply"] && model["State"] != "NoCharge" && text != ""
-                    //visible: showRemainingTime && model["Is Power Supply"] && model["State"] != "NoCharge" && text != "" && dialogItem.remainingTime > 0
-                }
-                DetailsLabel {
-                    id: capacityLabel
-                    text: i18nc("Placeholder is battery capacity", "%1%", model["Capacity"])
-                    visible: model["Is Power Supply"] &&  model["Capacity"] != "" && typeof model["Capacity"] == "number"
-                }
-                DetailsLabel {
-                    id: vendorLabel
-                    text: model["Vendor"]
-                    visible: model["Vendor"] != "" && typeof model["Vendor"] == "string"
-                }
-                DetailsLabel {
-                    id: modelLabel
-                    text: model["Product"]
-                    visible: model["Product"] != "" && typeof model["Product"] == "string"
-                }
-            }
+            text: i18nc("Placeholder is battery percentage", "%1%", model.device.chargePercent)
         }
     }
 }
-
