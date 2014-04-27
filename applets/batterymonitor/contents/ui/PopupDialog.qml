@@ -1,6 +1,6 @@
 /*
  *   Copyright 2011 Viranch Mehta <viranch.mehta@gmail.com>
- *   Copyright 2013 Kai Uwe Broulik <kde@privat.broulik.de>
+ *   Copyright 2013, 2014 Kai Uwe Broulik <kde@privat.broulik.de>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Library General Public License as
@@ -23,7 +23,6 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as Components
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.kquickcontrolsaddons 2.0
-import "plasmapackage:/code/logic.js" as Logic
 
 FocusScope {
     id: dialog
@@ -53,11 +52,6 @@ FocusScope {
         prefix: "hover"
         opacity: 0
     }
-
-    PlasmaExtras.ScrollArea {
-        anchors.fill: parent
-        Flickable {
-
 
     Column {
         id: batteryColumn
@@ -117,15 +111,7 @@ FocusScope {
 
         PowerManagementItem {
             id: pmSwitch
-            onEnabledChanged: {
-                console.log("I will now do stuff that will kill myself miserably")
-                for(var i = 0; i < batteriesModel.count; ++i) {
-                    console.log("SWITCH GETTING BATTERY NUMBER " + i + " OF " + batteriesModel.count)
-                    var b = batteriesModel.get(i)
-                    console.log(b.vendor  + " - " + b.product)
-                }
-             //   powermanagementChanged(enabled)
-            }
+            onEnabledChanged: powermanagementChanged(enabled)
             KeyNavigation.tab: brightnessSlider
             KeyNavigation.backtab: keyboardBrightnessSlider
         }
@@ -168,6 +154,4 @@ FocusScope {
         }
     }
 
-        } // flickable
-    } // scrollview
 }

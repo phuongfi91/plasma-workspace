@@ -1,6 +1,7 @@
 /*
  *   Copyright 2011 Sebastian Kügler <sebas@kde.org>
  *   Copyright 2012 Viranch Mehta <viranch.mehta@gmail.com>
+ *   Copyright 2014 Kai Uwe Broulik <kde@privat.broulik.de>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Library General Public License as
@@ -21,13 +22,11 @@
 var powermanagementDisabled = false;
 
 function updateCumulative() {
-    return
     var sum = 0;
     var count = 0;
     var charged = true;
     var present = false;
     for(var i = 0; i < batteriesModel.count; ++i) {
-        console.log("LOGICGETTING BATTERY NUMBER " + i + " OF " + batteriesModel.count)
         var b = batteriesModel.get(i)
         if (!b.powerSupply) {
             continue;
@@ -62,7 +61,6 @@ function updateCumulative() {
 }
 
 function plasmoidStatus() {
-    return
     var status = PlasmaCore.Types.PassiveStatus;
     if (powermanagementDisabled) {
         status = PlasmaCore.Types.ActiveStatus;
