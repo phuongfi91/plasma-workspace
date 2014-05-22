@@ -140,7 +140,6 @@ PanelView::~PanelView()
         }
         config().writeEntry("alignment", (int)m_alignment);
         m_corona->requestApplicationConfigSync();
-        m_corona->requestApplicationConfigSync();
     }
     PanelShadows::self()->removeWindow(this);
 }
