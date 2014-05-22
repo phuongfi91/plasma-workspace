@@ -45,7 +45,6 @@ PanelConfigView::PanelConfigView(Plasma::Containment *containment, PanelView *pa
       m_panelView(panelView)
 {
     m_visibilityMode = panelView->visibilityMode();
-    panelView->setVisibilityMode(PanelView::WindowsGoBelow);
     setScreen(panelView->screen());
     connect(panelView, &QWindow::screenChanged, this,
             [=](QScreen *screen) {
@@ -71,7 +70,6 @@ PanelConfigView::PanelConfigView(Plasma::Containment *containment, PanelView *pa
 
 PanelConfigView::~PanelConfigView()
 {
-    m_panelView->setVisibilityMode(m_visibilityMode);
     PanelShadows::self()->removeWindow(this);
 }
 
@@ -141,6 +139,8 @@ void PanelConfigView::setVisibilityMode(PanelView::VisibilityMode mode)
     }
 
     m_visibilityMode = mode;
+
+    m_panelView->setVisibilityMode(m_visibilityMode);
     emit visibilityModeChanged();
 }
 
