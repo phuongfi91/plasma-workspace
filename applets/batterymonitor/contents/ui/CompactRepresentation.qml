@@ -27,8 +27,8 @@ import "plasmapackage:/code/logic.js" as Logic
 
 Item {
     id: root
-    Layout.minimumWidth: view.isConstrained() ? units.iconSizes.medium : 24 // NOTE: Keep in sync with systray
-    Layout.minimumHeight: view.isConstrained() ? units.iconSizes.medium * view.count : 24
+    Layout.minimumWidth: isConstrained() ? units.iconSizes.medium : 24 // NOTE: Keep in sync with systray
+    Layout.minimumHeight: isConstrained() ? units.iconSizes.medium * view.count : 24
 
     function isConstrained() {
         return (plasmoid.formFactor == PlasmaCore.Types.Vertical || plasmoid.formFactor == PlasmaCore.Types.Horizontal)
