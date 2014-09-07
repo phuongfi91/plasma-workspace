@@ -32,6 +32,10 @@
 #include <Plasma/Package>
 #include <Plasma/PluginLoader>
 
+#if HAVE_WAYLAND
+#  include "waylandsurface.h"
+#endif
+
 SplashWindow::SplashWindow(bool testing, bool window)
     : QQuickView(),
       m_stage(0),
@@ -55,9 +59,24 @@ SplashWindow::SplashWindow(bool testing, bool window)
         setWindowState(Qt::WindowFullScreen);
     }
 
+#if HAVE_WAYLAND
+    //if (!m_testing && !m_window)
+    if (1)
+        m_plasmaSurface = new WaylandSurface(this);
+    else
+        m_plasmaSurface = Q_NULLPTR;
+#endif
+
     //be sure it will be eventually closed
     //FIXME: should never be stuck
     QTimer::singleShot(30000, this, SLOT(close()));
+}
+
+SplashWindow::~SplashWindow()
+{
+#if HAVE_WAYLAND
+    delete m_plasmaSurface;
+#endif
 }
 
 void SplashWindow::setStage(int stage)
@@ -103,5 +122,6 @@ void SplashWindow::setGeometry(const QRect& rect)
         }
 
         setSource(QUrl::fromLocalFile(package.filePath("splashmainscript")));
+        setSource(QUrl::fromLocalFile("/opt/kf5/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/splash/Splash.qml"));
     }
 }

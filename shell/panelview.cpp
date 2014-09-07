@@ -44,6 +44,10 @@
 #include <QX11Info>
 #endif
 
+#if HAVE_WAYLAND
+#  include "waylandsurface.h"
+#endif
+
 static const int MINSIZE = 10;
 
 PanelView::PanelView(ShellCorona *corona, QWindow *parent)
@@ -62,6 +66,11 @@ PanelView::PanelView(ShellCorona *corona, QWindow *parent)
     setClearBeforeRendering(true);
     setColor(QColor(Qt::transparent));
     setFlags(Qt::FramelessWindowHint|Qt::WindowDoesNotAcceptFocus);
+
+#if HAVE_WAYLAND
+    m_plasmaSurface = new WaylandSurface(this);
+    m_plasmaSurface->setRole(WaylandSurface::DesktopRole);
+#endif
 
     themeChanged();
     connect(&m_theme, &Plasma::Theme::themeChanged, this, &PanelView::themeChanged);
@@ -116,6 +125,10 @@ PanelView::~PanelView()
         m_corona->requestApplicationConfigSync();
     }
     PanelShadows::self()->removeWindow(this);
+
+#if HAVE_WAYLAND
+    delete m_plasmaSurface;
+#endif
 }
 
 KConfigGroup PanelView::config() const

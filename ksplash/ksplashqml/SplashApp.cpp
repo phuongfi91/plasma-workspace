@@ -30,6 +30,11 @@
 #include <QDebug>
 #include <QCommandLineParser>
 
+#if HAVE_WAYLAND
+#  include "waylandregistry.h"
+#  include "waylandshell.h"
+#endif
+
 #define TEST_STEP_INTERVAL 2000
 
 /**
@@ -60,6 +65,10 @@ SplashApp::SplashApp(int &argc, char ** argv)
     parser.process(*this);
     m_testing = parser.isSet("test");
     m_window = parser.isSet("window");
+
+#if HAVE_WAYLAND
+    WaylandRegistry::instance();
+#endif
 
     foreach(QScreen* screen, screens())
         adoptScreen(screen);
@@ -112,6 +121,9 @@ void SplashApp::setStage(const QString &stage)
 void SplashApp::setStage(int stage)
 {
     if (m_stage == 7) {
+#if HAVE_WAYLAND
+        WaylandRegistry::shell()->desktop_ready();
+#endif
         QGuiApplication::exit(EXIT_SUCCESS);
     }
 

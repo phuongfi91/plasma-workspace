@@ -18,6 +18,7 @@
  */
 
 
+#include "config-ksplashqml.h"
 #include "SplashApp.h"
 #include <QQuickWindow>
 
@@ -51,6 +52,11 @@ void logMessageHandler(QtMsgType type, const char *msg)
 
 int main(int argc, char **argv)
 {
+#if HAVE_WAYLAND
+    // Make sure the right QPA plugin is used for Wayland builds
+    setenv("QT_QPA_PLATFORM", "wayland", 1);
+#endif
+
     bool nofork = false;
     bool test = false;
     bool printPid = false;

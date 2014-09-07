@@ -23,10 +23,15 @@
 #include <Plasma/Theme>
 #include <QTimer>
 
+#include "config-plasma.h"
 #include "plasmaquick/view.h"
 #include "plasmaquick/configview.h"
 
 class ShellCorona;
+
+#if HAVE_WAYLAND
+class WaylandSurface;
+#endif
 
 class PanelView : public PlasmaQuick::View
 {
@@ -144,6 +149,10 @@ private:
     QTimer m_unhideTimer;
     //only for the mask, not to actually paint
     Plasma::FrameSvg *m_background;
+
+#if HAVE_WAYLAND
+    WaylandSurface *m_plasmaSurface;
+#endif
 
     static const int STRUTSTIMERDELAY = 200;
 };

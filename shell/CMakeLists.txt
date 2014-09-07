@@ -90,6 +90,14 @@ if(HAVE_X11)
   target_link_libraries(plasmashell Qt5::X11Extras)
 endif()
 
+if(HAVE_WAYLAND)
+  include_directories("${CMAKE_SOURCE_DIR}/libkwayland")
+  target_link_libraries(plasmashell
+                        kwayland
+                        Wayland::Client
+  )
+endif()
+
 install(TARGETS plasmashell ${INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES plasmashell.desktop DESTINATION ${AUTOSTART_INSTALL_DIR})
 install( FILES dbus/org.kde.PlasmaShell.xml DESTINATION ${DBUS_INTERFACES_INSTALL_DIR} )

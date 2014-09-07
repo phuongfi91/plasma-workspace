@@ -4,6 +4,8 @@ set(PROJECT_VERSION_MAJOR 5)
 
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
+option(ENABLE_WAYLAND "Build for Wayland instead of X11" OFF)
+
 set(QT_MIN_VERSION "5.3.0")
 set(KF5_MIN_VERSION "5.0.0")
 set(INSTALL_SDDM_THEME TRUE)
@@ -51,24 +53,38 @@ set_package_properties(dbusmenu-qt5 PROPERTIES DESCRIPTION "Support for notifica
                        TYPE OPTIONAL
                       )
 
-find_package(X11)
-set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
-                        URL "http://www.x.org"
-                        TYPE OPTIONAL
-                        PURPOSE "Required for building the X11 based workspace")
+if(ENABLE_WAYLAND)
+    find_package(Wayland 1.5 COMPONENTS Client)
+    set_package_properties(Wayland PROPERTIES
+        TYPE REQUIRED
+        PURPOSE "Required for building the Wayland based workspace")
+    add_feature_info("Wayland-Client" Wayland_Client_FOUND "Required for protocols")
 
-if(X11_FOUND)
-  find_package(XCB MODULE REQUIRED COMPONENTS XCB KEYSYMS)
-  set_package_properties(XCB PROPERTIES TYPE REQUIRED)
-  if(NOT X11_SM_FOUND)
-    message(FATAL_ERROR "\nThe X11 Session Management (SM) development package could not be found.\nPlease install libSM.\n")
-  endif(NOT X11_SM_FOUND)
-
-  find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS X11Extras)
+    if(Wayland_FOUND)
+        set(HAVE_WAYLAND 1)
+    endif()
 endif()
 
-if(X11_FOUND AND XCB_XCB_FOUND)
-  set(HAVE_X11 1)
+if(NOT Wayland_FOUND OR NOT ENABLE_WAYLAND)
+    find_package(X11)
+    set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
+                           URL "http://www.x.org"
+                           TYPE OPTIONAL
+                           PURPOSE "Required for building the X11 based workspace")
+
+    if(X11_FOUND)
+      find_package(XCB MODULE REQUIRED COMPONENTS XCB KEYSYMS)
+      set_package_properties(XCB PROPERTIES TYPE REQUIRED)
+      if(NOT X11_SM_FOUND)
+        message(FATAL_ERROR "\nThe X11 Session Management (SM) development package could not be found.\nPlease install libSM.\n")
+      endif(NOT X11_SM_FOUND)
+
+      find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS X11Extras)
+    endif()
+
+    if(X11_FOUND AND XCB_XCB_FOUND)
+      set(HAVE_X11 1)
+   endif()
 endif()
 
 include(ConfigureChecks.cmake)
@@ -96,6 +112,11 @@ if (INSTALL_SDDM_THEME)
 endif()
 
 add_subdirectory(doc)
+
+if(Wayland_FOUND)
+  add_subdirectory(libkwayland)
+endif()
+
 add_subdirectory(libkworkspace)
 add_subdirectory(libtaskmanager)
 add_subdirectory(components)

@@ -22,9 +22,14 @@
 
 #include "plasmaquick/view.h"
 #include "panelconfigview.h"
+#include "config-plasma.h"
 #include <QtCore/qpointer.h>
 
 class ShellCorona;
+
+#if HAVE_WAYLAND
+class WaylandSurface;
+#endif
 
 class DesktopView : public PlasmaQuick::View
 {
@@ -76,6 +81,10 @@ private:
     bool m_stayBehind : 1;
     bool m_fillScreen : 1;
     bool m_dashboardShown : 1;
+
+#if HAVE_WAYLAND
+    WaylandSurface *m_plasmaSurface;
+#endif
 };
 
 #endif // DESKTOVIEW_H

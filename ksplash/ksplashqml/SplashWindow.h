@@ -22,14 +22,21 @@
 
 #include <QQuickView>
 
+#include "config-ksplashqml.h"
+
 class QResizeEvent;
 class QMouseEvent;
 class QKeyEvent;
+
+#if HAVE_WAYLAND
+class WaylandSurface;
+#endif
 
 class SplashWindow: public QQuickView
 {
 public:
     SplashWindow(bool testing, bool window);
+    ~SplashWindow();
 
     void setStage(int stage);
     virtual void setGeometry(const QRect &rect);
@@ -42,6 +49,10 @@ private:
     int m_stage;
     bool m_testing;
     bool m_window;
+
+#if HAVE_WAYLAND
+    WaylandSurface *m_plasmaSurface;
+#endif
 };
 
 #endif // SPLASH_WINDOW_H_

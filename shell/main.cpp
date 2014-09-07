@@ -27,6 +27,11 @@
 #include <klocalizedstring.h>
 
 #include "shellmanager.h"
+#include "config-plasma.h"
+
+#if HAVE_WAYLAND
+#  include "waylandregistry.h"
+#endif
 
 static const char description[] = "Plasma Shell";
 static const char version[] = "4.96.0";
@@ -50,6 +55,22 @@ int main(int argc, char** argv)
     app.setQuitOnLastWindowClosed(false);
     app.setWindowIcon(QIcon::fromTheme("plasma"));
     KDBusService service(KDBusService::Unique);
+
+    // Make sure we are using the right platform plugin
+#if HAVE_X11
+    if (QGuiApplication::platformName() != QStringLiteral("xcb")) {
+        qWarning() << qPrintable(i18n("Please run plasma-shell with -platform xcb or "
+                                      "set QT_QPA_PLATFORM_PLUGIN environment variable accordingly."));
+        return 127;
+    }
+#endif
+#if HAVE_WAYLAND
+    if (!QGuiApplication::platformName().startsWith(QStringLiteral("wayland"))) {
+        qWarning() << qPrintable(i18n("Please run plasma-shell with -platform wayland or "
+                                      "set QT_QPA_PLATFORM_PLUGIN environment variable accordingly."));
+        return 127;
+    }
+#endif
 
     QCommandLineParser cliOptions;
     cliOptions.setApplicationDescription(description);
@@ -97,6 +118,10 @@ int main(int argc, char** argv)
     };
     QObject::connect(&app, &QGuiApplication::commitDataRequest, disableSessionManagement);
     QObject::connect(&app, &QGuiApplication::saveStateRequest, disableSessionManagement);
+
+#if HAVE_WAYLAND
+    WaylandRegistry::instance();
+#endif
 
     ShellManager::setCrashCount(cliOptions.value(crashOption).toInt());
     ShellManager::s_forceWindowed = cliOptions.isSet(winOption);

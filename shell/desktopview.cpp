@@ -22,6 +22,10 @@
 #include "shellmanager.h"
 #include "krunner_interface.h"
 
+#if HAVE_WAYLAND
+#  include "waylandsurface.h"
+#endif
+
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QScreen>
@@ -39,8 +43,17 @@ DesktopView::DesktopView(ShellCorona *corona)
       m_fillScreen(false),
       m_dashboardShown(false)
 {
+#if HAVE_WAYLAND
+    m_stayBehind = true;
+    m_fillScreen = true;
+
+    m_plasmaSurface = new WaylandSurface(this);
+    m_plasmaSurface->setRole(WaylandSurface::DesktopRole);
+#else
     setTitle(i18n("Desktop"));
     setIcon(QIcon::fromTheme("user-desktop"));
+#endif
+
     engine()->rootContext()->setContextProperty("desktop", this);
     setSource(QUrl::fromLocalFile(corona->package().filePath("views", "Desktop.qml")));
 
@@ -63,6 +76,9 @@ DesktopView::DesktopView(ShellCorona *corona)
 
 DesktopView::~DesktopView()
 {
+#if HAVE_WAYLAND
+    delete m_plasmaSurface;
+#endif
 }
 
 bool DesktopView::stayBehind() const
@@ -72,6 +88,9 @@ bool DesktopView::stayBehind() const
 
 void DesktopView::setStayBehind(bool stayBehind)
 {
+#if HAVE_WAYLAND
+    Q_UNUSED(stayBehind);
+#else
     if (ShellManager::s_forceWindowed || stayBehind == m_stayBehind) {
         return;
     }
@@ -80,6 +99,7 @@ void DesktopView::setStayBehind(bool stayBehind)
     ensureStayBehind();
 
     emit stayBehindChanged();
+#endif
 }
 
 bool DesktopView::fillScreen() const
@@ -89,6 +109,9 @@ bool DesktopView::fillScreen() const
 
 void DesktopView::setFillScreen(bool fillScreen)
 {
+#if HAVE_WAYLAND
+    Q_UNUSED(fillScreen);
+#else
     if (ShellManager::s_forceWindowed || fillScreen == m_fillScreen) {
         return;
     }
@@ -96,6 +119,7 @@ void DesktopView::setFillScreen(bool fillScreen)
     m_fillScreen = fillScreen;
     adaptToScreen();
     emit fillScreenChanged();
+#endif
 }
 
 void DesktopView::showEvent(QShowEvent* e)
@@ -127,6 +151,7 @@ void DesktopView::adaptToScreen()
 
 void DesktopView::ensureStayBehind()
 {
+#if !HAVE_WAYLAND
     //This happens sometimes, when shutting down the process
     if (!screen())
         return;
@@ -135,10 +160,17 @@ void DesktopView::ensureStayBehind()
     } else {
         KWindowSystem::setType(winId(), NET::Normal);
     }
+#endif
 }
 
 void DesktopView::setDashboardShown(bool shown)
 {
+#if HAVE_WAYLAND
+    if (shown)
+        m_plasmaSurface->setRole(WaylandSurface::DashboardRole);
+    else
+        m_plasmaSurface->setRole(WaylandSurface::DesktopRole);
+#else
     if (shown) {
         if (m_stayBehind) {
             KWindowSystem::setType(winId(), NET::Normal);
@@ -160,6 +192,7 @@ void DesktopView::setDashboardShown(bool shown)
         KWindowSystem::lowerWindow(winId());
 
     }
+#endif
 
     m_dashboardShown = shown;
     emit dashboardShownChanged();
