@@ -110,6 +110,13 @@ Item {
             }
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+            QtControls.CheckBox {
+                text: i18n("Switch time zone with mouse wheel")
+            }
+        }
+
     }
 
 
