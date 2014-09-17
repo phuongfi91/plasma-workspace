@@ -50,6 +50,7 @@ Item {
 
                 timeZones.push(plasmoid.configuration.selectedTimeZones[i]);
             }
+            timeZones.push("Local");
             return timeZones;
         }
         interval: plasmoid.configuration.showSeconds ? 1000 : 30000
