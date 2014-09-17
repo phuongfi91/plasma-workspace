@@ -30,6 +30,7 @@ public:
     QString region;
     QString city;
     QString comment;
+    bool checked;
 
 };
 

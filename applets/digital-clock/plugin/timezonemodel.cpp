@@ -54,10 +54,27 @@ QVariant TimeZoneModel::data(const QModelIndex &index, int role) const
             return currentData.city;
         case CommentRole:
             return currentData.comment;
+        case CheckedRole:
+            return currentData.checked;
         }
     }
 
     return QVariant();
+}
+
+bool TimeZoneModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid() || value.isNull()) {
+        return false;
+    }
+
+    if (role == CheckedRole) {
+        m_data[index.row()].checked = value.toBool();
+        emit dataChanged(index, index);
+        return true;
+    }
+
+    return false;
 }
 
 void TimeZoneModel::update()
@@ -126,6 +143,7 @@ QHash<int, QByteArray> TimeZoneModel::roleNames() const {
         {TimeZoneIdRole, "timeZoneId"},
         {RegionRole, "region"},
         {CityRole, "city"},
-        {CommentRole, "comment"}
+        {CommentRole, "comment"},
+        {CheckedRole, "checked"}
     });
 }

@@ -37,11 +37,13 @@ public:
         TimeZoneIdRole = Qt::UserRole + 1,
         RegionRole,
         CityRole,
-        CommentRole
+        CommentRole,
+        CheckedRole
     };
 
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     void update();
 
