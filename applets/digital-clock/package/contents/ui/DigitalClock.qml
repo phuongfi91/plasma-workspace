@@ -52,7 +52,7 @@ Item {
     property string timeFormat
     property int tzOffset
 
-    property int tzIndex
+    property int tzIndex: 0
 
     onShowSecondsChanged: {
         timeFormatCorrection(Qt.locale().timeFormat(Locale.ShortFormat))
@@ -72,10 +72,9 @@ Item {
         minimumPixelSize: theme.mSize(theme.smallestFont).height
         fontSizeMode: Text.Fit
         text: {
-            var dateTime = new Date();
-            dateTime.setTime(dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"].getTime() + dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"])
+            var dateTime = new Date(dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"].getTime() + dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"] * 1000);
             return Qt.formatTime(dateTime, main.timeFormat)
-              + (showDate ? "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat)) : "" )
+                + (showDate ? "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat)) : "" )
         }
         wrapMode: plasmoid.formFactor != PlasmaCore.Types.Horizontal ? Text.WordWrap : Text.NoWrap
         horizontalAlignment: vertical ? Text.AlignHCenter : Text.AlignLeft // we want left align when horizontal to avoid re-aligning when seconds are visible
