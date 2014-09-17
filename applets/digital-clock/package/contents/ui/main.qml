@@ -42,7 +42,7 @@ Item {
         id: dataSource
         engine: "time"
         connectedSources: {
-            var timeZones = new Array();
+            var timeZones = [];
             for (var i = 0; i < plasmoid.configuration.selectedTimeZones.length; i++) {
                 if (plasmoid.configuration.selectedTimeZones[i] == "") {
                     continue;
