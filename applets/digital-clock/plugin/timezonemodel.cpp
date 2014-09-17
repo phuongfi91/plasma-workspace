@@ -21,9 +21,7 @@
 
 #include <QTimeZone>
 #include <KLocalizedString>
-#include <KDELibs4Support/klocale.h>
-#include <KDELibs4Support/ksystemtimezone.h>
-#include <KDELibs4Support/kglobal.h>
+#include <QDebug>
 
 TimeZoneModel::TimeZoneModel(QObject *parent) : QAbstractListModel(parent)
 {
@@ -83,55 +81,42 @@ void TimeZoneModel::update()
     m_data.clear();
 
     QStringList cities;
-    QHash<QString, KTimeZone> zonesByCity;
+    QHash<QString, QTimeZone> zonesByCity;
 
-    auto timeZoneDisplayName = [](const KTimeZone &timeZone) -> QString {
-        return i18n(timeZone.name().toUtf8()).replace(QLatin1Char('_'), QLatin1Char(' '));
-    };
+    QList<QByteArray> systemTimeZones = QTimeZone::availableTimeZoneIds();
 
-    KTimeZones *systemTimeZones = KSystemTimeZones::timeZones();
+    for (auto it = systemTimeZones.constBegin(); it != systemTimeZones.constEnd(); ++it) {
+        const QTimeZone zone(*it);
+        const QString continentCity = zone.id();
+        const int separator = continentCity.lastIndexOf('/');
 
-    // add UTC to the defaults
-    KTimeZone utc = KTimeZone::utc();
-    cities.append(utc.name());
-    zonesByCity.insert(utc.name(), utc);
-
-    const auto timeZones = systemTimeZones->zones();
-    for (auto it = timeZones.constBegin(); it != timeZones.constEnd(); ++it) {
-        const KTimeZone zone = (*it);
-        const QString continentCity = timeZoneDisplayName(zone);
-        const int separator = continentCity.lastIndexOf(QLatin1Char('/'));
-
+        // CITY | COUNTRY | CONTINENT
         const QString key = QString("%1|%2|%3").arg(continentCity.mid(separator + 1),
-                                                    continentCity.left(separator),
-                                                    zone.name());
+                                                    QLocale::countryToString(zone.country()),
+                                                    continentCity.left(separator));
+
         cities.append(key);
         zonesByCity.insert(key, zone);
     }
     cities.sort(Qt::CaseInsensitive);
 
-    foreach(const QString &key, cities) {
-        const KTimeZone timeZone = zonesByCity.value(key);
+    Q_FOREACH (const QString &key, cities) {
+        const QTimeZone timeZone = zonesByCity.value(key);
         QString comment = timeZone.comment();
 
         if (!comment.isEmpty()) {
             comment = i18n(comment.toUtf8());
         }
 
-        QStringList continentCity = timeZoneDisplayName(timeZone).split(QLatin1Char('/'));
-
-        QString countryName = KGlobal::locale()->countryCodeToName(timeZone.countryCode());
-        if (countryName.isEmpty()) {
-            continentCity[continentCity.count() - 1] = timeZone.countryCode();
-        } else {
-            continentCity[continentCity.count() - 1] = countryName;
-        }
+        QStringList cityCountryContinent = key.split(QLatin1Char('|'));
 
         TimeZoneData newData;
-        //newData.id = // TODO
-        newData.region = continentCity.join(QLatin1Char('/'));
-        newData.city = timeZone.name();
+        newData.id = timeZone.id();
+        newData.region = cityCountryContinent.at(2) + QLatin1Char('/') + cityCountryContinent.at(1);
+        newData.city = cityCountryContinent.at(0);
         newData.comment = comment;
+        // TODO: load things from config and compare
+        newData.checked = QTimeZone::systemTimeZoneId() == timeZone.id();
         m_data.append(newData);
     }
 
