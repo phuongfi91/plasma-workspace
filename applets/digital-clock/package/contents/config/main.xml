@@ -27,6 +27,9 @@
     <entry name="timeFormat" type="string">
       <default>default</default>
     </entry>
+    <entry name="selectedTimeZones" type="StringList">
+<!--         <default>default</default> -->
+    </entry>
   </group>
 
 </kcfg>

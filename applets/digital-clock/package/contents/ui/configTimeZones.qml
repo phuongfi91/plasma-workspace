@@ -40,6 +40,8 @@ Item {
     property alias cfg_showDate: showDate.checked
     property string cfg_dateFormat: "shortDate"*/
 
+    property alias cfg_selectedTimeZones: timeZones.selectedTimeZones
+
     TimeZoneModel {
         id: timeZones
     }

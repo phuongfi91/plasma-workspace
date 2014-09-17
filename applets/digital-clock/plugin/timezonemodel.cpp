@@ -69,6 +69,14 @@ bool TimeZoneModel::setData(const QModelIndex &index, const QVariant &value, int
     if (role == CheckedRole) {
         m_data[index.row()].checked = value.toBool();
         emit dataChanged(index, index);
+
+        if (m_data[index.row()].checked) {
+            m_selectedTimeZones.append(m_data[index.row()].id);
+        } else {
+            m_selectedTimeZones.removeAll(m_data[index.row()].id);
+        }
+
+        emit selectedTimeZonesChanged();
         return true;
     }
 

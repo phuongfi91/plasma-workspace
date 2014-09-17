@@ -26,8 +26,8 @@
 
 class TimeZoneModel : public QAbstractListModel
 {
-
-Q_OBJECT
+    Q_OBJECT
+    Q_PROPERTY(QStringList selectedTimeZones MEMBER m_selectedTimeZones NOTIFY selectedTimeZonesChanged)
 
 public:
     explicit TimeZoneModel(QObject *parent = 0);
@@ -47,11 +47,15 @@ public:
 
     void update();
 
+Q_SIGNALS:
+    void selectedTimeZonesChanged();
+
 protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
     QList<TimeZoneData> m_data;
+    QStringList m_selectedTimeZones;
 
 };
 
