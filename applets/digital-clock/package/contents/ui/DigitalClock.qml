@@ -90,17 +90,20 @@ Item {
         MouseArea {
             anchors.fill: parent
             onWheel: {
-                if (tzIndex + 1 >= plasmoid.configuration.selectedTimeZones.length) {
-                    tzIndex = 0;
+                var delta = wheel.angleDelta.y || wheel.angleDelta.x
+
+                if (delta < 0) {
+                    tzIndex--;
                 } else {
                     tzIndex++;
                 }
 
-                var dateTime = new Date();
-                dateTime.setTime(dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"].getTime() + (dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"] * 1000))
+                if (tzIndex >= plasmoid.configuration.selectedTimeZones.length) {
+                    tzIndex = 0;
+                } else if (tzIndex < 0) {
+                    tzIndex = plasmoid.configuration.selectedTimeZones.length - 1;
+                }
 
-                timeLabel.text = Qt.formatTime(dateTime, main.timeFormat)
-                    + (showDate ? "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat)) : "" )
             }
         }
     }
