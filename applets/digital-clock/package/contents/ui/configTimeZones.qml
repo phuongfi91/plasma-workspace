@@ -72,14 +72,16 @@ Item {
             }
 
             QtControls.TableViewColumn {
-                role: "enabled"
+                role: "checked"
                 width: checkbox.width
                 delegate: Item {
                     anchors.fill: parent
 
                     QtControls.CheckBox {
                         anchors.centerIn: parent
-                        checked: styleData.value
+                        onCheckedChanged: {
+                            model.checked = checked;
+                        }
                     }
                 }
                 resizable: false
