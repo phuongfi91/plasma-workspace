@@ -52,6 +52,8 @@ Item {
     property string timeFormat
     property int tzOffset
 
+    property int tzIndex
+
     onShowSecondsChanged: {
         timeFormatCorrection(Qt.locale().timeFormat(Locale.ShortFormat))
     }
@@ -69,8 +71,12 @@ Item {
         }
         minimumPixelSize: theme.mSize(theme.smallestFont).height
         fontSizeMode: Text.Fit
-        text: Qt.formatTime(dataSource.data["Local"]["DateTime"], main.timeFormat)
-              + (showDate ? "<br/>" + Qt.formatDate(dataSource.data["Local"]["DateTime"], Qt.locale().dateFormat(main.dateFormat)) : "" )
+        text: {
+            var dateTime = new Date();
+            dateTime.setTime(dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"].getTime() + dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"])
+            return Qt.formatTime(dateTime, main.timeFormat)
+              + (showDate ? "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat)) : "" )
+        }
         wrapMode: plasmoid.formFactor != PlasmaCore.Types.Horizontal ? Text.WordWrap : Text.NoWrap
         horizontalAlignment: vertical ? Text.AlignHCenter : Text.AlignLeft // we want left align when horizontal to avoid re-aligning when seconds are visible
         verticalAlignment: Text.AlignVCenter
@@ -80,6 +86,23 @@ Item {
             fill: parent
             leftMargin: units.smallSpacing
             rightMargin: units.smallSpacing
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onWheel: {
+                if (tzIndex + 1 >= plasmoid.configuration.selectedTimeZones.length) {
+                    tzIndex = 0;
+                } else {
+                    tzIndex++;
+                }
+
+                var dateTime = new Date();
+                dateTime.setTime(dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"].getTime() + (dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"] * 1000))
+
+                timeLabel.text = Qt.formatTime(dateTime, main.timeFormat)
+                    + (showDate ? "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat)) : "" )
+            }
         }
     }
 
