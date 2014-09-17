@@ -94,7 +94,7 @@ Item {
 
                 if (delta < 0) {
                     tzIndex--;
-                } else {
+                } else (delta > 1) {
                     tzIndex++;
                 }
 
