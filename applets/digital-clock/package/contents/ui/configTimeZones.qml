@@ -108,6 +108,13 @@ Item {
             }
 
             QtControls.ComboBox {
+                model: PlasmaCore.SortFilterModel {
+                    sourceModel: timeZones
+                    filterRole: "checked"
+                    filterRegExp: "true"
+                }
+                textRole: "city"
+
 
             }
         }
