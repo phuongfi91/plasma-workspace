@@ -104,6 +104,7 @@ Item {
                     tzIndex = plasmoid.configuration.selectedTimeZones.length - 1;
                 }
 
+                dataSource.dataChanged();
             }
         }
     }
