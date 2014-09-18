@@ -94,6 +94,7 @@ Item {
 
         MouseArea {
             anchors.fill: parent
+            enabled: plasmoid.configuration.wheelChangesTimezone
             onWheel: {
                 var delta = wheel.angleDelta.y || wheel.angleDelta.x
 

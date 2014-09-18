@@ -41,6 +41,7 @@ Item {
     property string cfg_dateFormat: "shortDate"*/
 
     property alias cfg_selectedTimeZones: timeZones.selectedTimeZones
+    property alias cfg_wheelChangesTimezone: enableWheelCheckBox.checked
 
     TimeZoneModel {
         id: timeZones
@@ -126,6 +127,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             QtControls.CheckBox {
+                id: enableWheelCheckBox
                 text: i18n("Switch time zone with mouse wheel")
             }
         }

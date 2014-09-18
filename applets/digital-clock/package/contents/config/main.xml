@@ -29,6 +29,8 @@
     </entry>
     <entry name="selectedTimeZones" type="StringList">
 <!--         <default>default</default> -->
+    <entry name="wheelChangesTimezone" type="Bool">
+      <default>false</default>
     </entry>
   </group>
 
