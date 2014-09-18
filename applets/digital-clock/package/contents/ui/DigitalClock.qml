@@ -72,7 +72,12 @@ Item {
         minimumPixelSize: theme.mSize(theme.smallestFont).height
         fontSizeMode: Text.Fit
         text: {
-            var dateTime = new Date(dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"].getTime() + dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"] * 1000);
+            var now = dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"];
+            // get current UTC time
+            var msUTC = now.getTime() + (now.getTimezoneOffset() * 60000);
+            // add the TZ offset to it
+            var dateTime = new Date(msUTC + (dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"] * 1000));
+
             return Qt.formatTime(dateTime, main.timeFormat)
                 + (showDate ? "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat)) : "" )
         }
