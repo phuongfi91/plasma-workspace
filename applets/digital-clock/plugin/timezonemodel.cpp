@@ -123,7 +123,6 @@ void TimeZoneModel::update()
         newData.region = cityCountryContinent.at(2) + QLatin1Char('/') + cityCountryContinent.at(1);
         newData.city = cityCountryContinent.at(0);
         newData.comment = comment;
-        // TODO: load things from config and compare
         newData.checked = QTimeZone::systemTimeZoneId() == timeZone.id();
         m_data.append(newData);
     }
