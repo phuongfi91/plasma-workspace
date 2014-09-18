@@ -133,6 +133,7 @@ void TimeZoneModel::update()
 
 void TimeZoneModel::setSelectedTimeZones(const QStringList &selectedTimeZones)
 {
+    m_selectedTimeZones = selectedTimeZones;
     for (int i = 0; i < m_data.size(); i++) {
         if (selectedTimeZones.contains(m_data.at(i).id)) {
             m_data[i].checked = true;
