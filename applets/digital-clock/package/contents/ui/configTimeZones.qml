@@ -81,7 +81,9 @@ Item {
 
                     QtControls.CheckBox {
                         anchors.centerIn: parent
-                        onCheckedChanged: {
+                        checked: model.checked
+                        onClicked: {
+                            //needed for model's setData to be called
                             model.checked = checked;
                         }
                     }
