@@ -28,7 +28,10 @@
       <default>default</default>
     </entry>
     <entry name="selectedTimeZones" type="StringList">
-<!--         <default>default</default> -->
+    </entry>
+    <entry name="lastSelectedIndex" type="Int">
+      <default>0</default>
+    </entry>
     <entry name="wheelChangesTimezone" type="Bool">
       <default>false</default>
     </entry>

@@ -52,7 +52,7 @@ Item {
     property string timeFormat
     property int tzOffset
 
-    property int tzIndex: 0
+    property int tzIndex: plasmoid.configuration.lastSelectedIndex
 
     onShowSecondsChanged: {
         timeFormatCorrection(Qt.locale().timeFormat(Locale.ShortFormat))
@@ -97,18 +97,21 @@ Item {
             enabled: plasmoid.configuration.wheelChangesTimezone
             onWheel: {
                 var delta = wheel.angleDelta.y || wheel.angleDelta.x
+                var newIndex = tzIndex;
 
                 if (delta < 0) {
-                    tzIndex--;
+                    newIndex--;
                 } else if (delta > 1) {
-                    tzIndex++;
+                    newIndex++;
                 }
 
-                if (tzIndex >= plasmoid.configuration.selectedTimeZones.length) {
-                    tzIndex = 0;
-                } else if (tzIndex < 0) {
-                    tzIndex = plasmoid.configuration.selectedTimeZones.length - 1;
+                if (newIndex >= plasmoid.configuration.selectedTimeZones.length) {
+                    newIndex = 0;
+                } else if (newIndex < 0) {
+                    newIndex = plasmoid.configuration.selectedTimeZones.length - 1;
                 }
+
+                plasmoid.configuration.lastSelectedIndex = newIndex;
 
                 dataSource.dataChanged();
             }
