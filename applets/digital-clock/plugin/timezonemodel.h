@@ -27,7 +27,7 @@
 class TimeZoneModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList selectedTimeZones MEMBER m_selectedTimeZones NOTIFY selectedTimeZonesChanged)
+    Q_PROPERTY(QStringList selectedTimeZones WRITE setSelectedTimeZones MEMBER m_selectedTimeZones NOTIFY selectedTimeZonesChanged)
 
 public:
     explicit TimeZoneModel(QObject *parent = 0);
@@ -46,6 +46,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     void update();
+    void setSelectedTimeZones(const QStringList &selectedTimeZones);
 
 Q_SIGNALS:
     void selectedTimeZonesChanged();

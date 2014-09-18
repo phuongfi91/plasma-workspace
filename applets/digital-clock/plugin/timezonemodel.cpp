@@ -131,6 +131,18 @@ void TimeZoneModel::update()
     endResetModel();
 }
 
+void TimeZoneModel::setSelectedTimeZones(const QStringList &selectedTimeZones)
+{
+    for (int i = 0; i < m_data.size(); i++) {
+        if (selectedTimeZones.contains(m_data.at(i).id)) {
+            m_data[i].checked = true;
+
+            QModelIndex index = createIndex(i, 0);
+            emit dataChanged(index, index);
+        }
+    }
+}
+
 QHash<int, QByteArray> TimeZoneModel::roleNames() const {
     return QHash<int, QByteArray>({
         {TimeZoneIdRole, "timeZoneId"},
