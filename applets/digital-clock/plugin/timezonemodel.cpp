@@ -88,6 +88,18 @@ void TimeZoneModel::update()
     beginResetModel();
     m_data.clear();
 
+    QTimeZone localZone = QTimeZone(QTimeZone::systemTimeZoneId());
+    QStringList data = QString::fromUtf8(localZone.id()).split(QLatin1Char('/'));
+
+    TimeZoneData local;
+    local.id = QStringLiteral("Local");
+    local.region = i18nc("This means \"Local Timezone\"", "Local");
+    local.city = data.at(1);
+    local.comment = i18n("Your system time zone");
+    local.checked = true;
+
+    m_data.append(local);
+
     QStringList cities;
     QHash<QString, QTimeZone> zonesByCity;
 
@@ -123,7 +135,7 @@ void TimeZoneModel::update()
         newData.region = cityCountryContinent.at(2) + QLatin1Char('/') + cityCountryContinent.at(1);
         newData.city = cityCountryContinent.at(0);
         newData.comment = comment;
-        newData.checked = QTimeZone::systemTimeZoneId() == timeZone.id();
+        newData.checked = false;
         m_data.append(newData);
     }
 
@@ -133,8 +145,11 @@ void TimeZoneModel::update()
 void TimeZoneModel::setSelectedTimeZones(const QStringList &selectedTimeZones)
 {
     m_selectedTimeZones = selectedTimeZones;
+    if (!m_selectedTimeZones.contains(QLatin1String("Local"))) {
+        m_selectedTimeZones << QStringLiteral("Local");
+    }
     for (int i = 0; i < m_data.size(); i++) {
-        if (selectedTimeZones.contains(m_data.at(i).id)) {
+        if (m_selectedTimeZones.contains(m_data.at(i).id)) {
             m_data[i].checked = true;
 
             QModelIndex index = createIndex(i, 0);
