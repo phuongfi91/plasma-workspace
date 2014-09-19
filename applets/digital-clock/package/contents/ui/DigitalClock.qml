@@ -52,7 +52,7 @@ Item {
     property string timeFormat
     property int tzOffset
 
-    property int tzIndex: plasmoid.configuration.lastSelectedIndex
+    property int tzIndex: plasmoid.configuration.lastSelectedIndex >= plasmoid.configuration.selectedTimeZones.length ? 0 : plasmoid.configuration.lastSelectedIndex
 
     onShowSecondsChanged: {
         timeFormatCorrection(Qt.locale().timeFormat(Locale.ShortFormat))
