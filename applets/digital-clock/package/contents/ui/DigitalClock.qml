@@ -78,7 +78,11 @@ Item {
             // add the TZ offset to it
             var dateTime = new Date(msUTC + (dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"] * 1000));
 
+            // TODO: Add the timezone code to the DataEngine and possibly use that instead of the city
+            var timezoneString = dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Timezone City"];
+
             return Qt.formatTime(dateTime, main.timeFormat)
+                + (showDate ? " (" + timezoneString + ")" : "<br/>" + timezoneString)
                 + (showDate ? "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat)) : "" )
         }
         wrapMode: plasmoid.formFactor != PlasmaCore.Types.Horizontal ? Text.WordWrap : Text.NoWrap
