@@ -28,6 +28,7 @@
       <default>default</default>
     </entry>
     <entry name="selectedTimeZones" type="StringList">
+        <default>Local</default>
     </entry>
     <entry name="lastSelectedIndex" type="Int">
       <default>0</default>
