@@ -33,6 +33,7 @@ Item {
     property alias cfg_italicText: italicCheckBox.checked
 
     property alias cfg_showTimezone: showTimezone.checked
+    property alias cfg_displayTimezoneAsCode: timezoneCodeRadio.checked
     property alias cfg_showSeconds: showSeconds.checked
 
     property alias cfg_showDate: showDate.checked
@@ -70,6 +71,28 @@ Item {
                 QtControls.CheckBox {
                     id: showTimezone
                     text: i18n("Show time zone")
+                QtControls.Label {
+                    text: i18n("Display timezone as")
+                }
+
+                QtControls.GroupBox {
+                    flat: true
+                    QtLayouts.ColumnLayout {
+
+                        QtControls.ExclusiveGroup { id: timezoneDisplayType }
+
+                        QtControls.RadioButton {
+                            id: timezoneCityRadio
+                            text: i18n("Timezone city")
+                            exclusiveGroup: timezoneDisplayType
+                        }
+
+                        QtControls.RadioButton {
+                            id: timezoneCodeRadio
+                            text: i18n("Timezone code")
+                            exclusiveGroup: timezoneDisplayType
+                        }
+                    }
                 }
 
                 QtControls.CheckBox {
@@ -107,6 +130,12 @@ Item {
                                 if (model[i]["name"] == plasmoid.configuration.dateFormat) {
                                     dateFormat.currentIndex = i;
                                 }
+                            }
+
+                            if (plasmoid.configuration.displayTimezoneAsCode) {
+                                timezoneCodeRadio.checked = true;
+                            } else {
+                                timezoneCityRadio.checked = true;
                             }
                         }
                     }
