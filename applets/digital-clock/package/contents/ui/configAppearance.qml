@@ -70,7 +70,7 @@ Item {
 
                 QtControls.CheckBox {
                     id: showTimezone
-                    text: i18n("Show local time zone")
+                    text: i18n("Show time zone")
                 }
 
                 QtControls.Label {
