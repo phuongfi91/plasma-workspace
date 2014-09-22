@@ -72,19 +72,30 @@ Item {
         minimumPixelSize: theme.mSize(theme.smallestFont).height
         fontSizeMode: Text.Fit
         text: {
+            var returnString = "";
+
             var now = dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"];
             // get current UTC time
             var msUTC = now.getTime() + (now.getTimezoneOffset() * 60000);
             // add the TZ offset to it
             var dateTime = new Date(msUTC + (dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Offset"] * 1000));
 
-            // TODO: Add the timezone code to the DataEngine and possibly use that instead of the city
-            var timezoneString = dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Timezone City"];
+            returnString += Qt.formatTime(dateTime, main.timeFormat);
 
-            return Qt.formatTime(dateTime, main.timeFormat)
-                + (showDate ? " (" + timezoneString + ")" : "<br/>" + timezoneString)
-                + (showDate ? "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat)) : "" )
+            if (plasmoid.configuration.selectedTimeZones[tzIndex] != "Local" || main.showTimezone) {
+                var timezoneString = plasmoid.configuration.displayTimezoneAsCode ? dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Timezone Abbreviation"]
+                                                                                  : dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Timezone City"];
+
+                returnString += (showDate ? " (" + timezoneString + ")" : "<br/>" + timezoneString);
+            }
+
+            if (showDate) {
+                returnString += "<br/>" + Qt.formatDate(dateTime, Qt.locale().dateFormat(main.dateFormat));
+            }
+
+            return returnString;
         }
+
         wrapMode: plasmoid.formFactor != PlasmaCore.Types.Horizontal ? Text.WordWrap : Text.NoWrap
         horizontalAlignment: vertical ? Text.AlignHCenter : Text.AlignLeft // we want left align when horizontal to avoid re-aligning when seconds are visible
         verticalAlignment: Text.AlignVCenter
@@ -177,23 +188,19 @@ Item {
         }
 
         var st = Qt.formatTime(new Date(2000, 0, 1, 20, 0, 0), timeFormatString);
-        if (main.showTimezone) {
-            st += Qt.formatTime(dataSource.data["Local"]["DateTime"], " t");
+        if (main.showTimezone || plasmoid.configuration.selectedTimeZones[tzIndex] != "Local") {
+            var timezoneString = plasmoid.configuration.displayTimezoneAsCode ? dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Timezone Abbreviation"]
+                                                                              : dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["Timezone City"];
+
+            st += (showDate ? " (" + timezoneString + ")" : "<br/>" + timezoneString);
         }
 
         if (main.showDate) {
-            st += "<br/>" + Qt.formatDate(dataSource.data["Local"]["DateTime"], Qt.locale().dateFormat(main.dateFormat));
+            st += "<br/>" + Qt.formatDate(dataSource.data[plasmoid.configuration.selectedTimeZones[tzIndex]]["DateTime"], Qt.locale().dateFormat(main.dateFormat));
         }
 
         if (sizehelper.text != st) {
             sizehelper.text = st;
-        }
-
-        //FIXME: this always appends the timezone part at the end, it should probably be
-        //       Locale-driven, however QLocale does not provide any hint about where to
-        //       put it
-        if (main.showTimezone && timeFormatString.indexOf('t') == -1) {
-            timeFormatString = timeFormatString + " t";
         }
 
         main.timeFormat = timeFormatString;
