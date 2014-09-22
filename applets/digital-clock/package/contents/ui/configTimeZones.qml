@@ -97,12 +97,12 @@ Item {
                 title: i18n("Region")
             }
             QtControls.TableViewColumn {
-                role: "comment"
-                title: i18n("Comment")
-            }
-            QtControls.TableViewColumn {
                 role: "city"
                 title: i18n("City")
+            }
+            QtControls.TableViewColumn {
+                role: "comment"
+                title: i18n("Comment")
             }
         }
 
