@@ -26,7 +26,7 @@
 #include <QTime>
 #include <QTimeZone>
 
-#include <Solid/PowerManagement>
+#include <Solid/Power/PowerManagement>
 
 #include "timesource.h"
 
@@ -40,11 +40,6 @@ TimeEngine::TimeEngine(QObject *parent, const QVariantList &args)
 {
     Q_UNUSED(args)
     setMinimumPollingInterval(333);
-
-    // To have translated timezone names
-    // (effectively a noop if the catalog is already present).
-    ////KF5 port: remove this line and define TRANSLATION_DOMAIN in CMakeLists.txt instead
-//KLocale::global()->insertCatalog("timezones4");
     QTimer::singleShot(0, this, SLOT(init()));
 }
 
@@ -59,7 +54,8 @@ void TimeEngine::init()
     dbus.connect(QString(), QString(), "org.kde.KTimeZoned", "timeZoneChanged", this, SLOT(tzConfigChanged()));
     dbus.connect(QString(), "/org/kde/kcmshell_clock", "org.kde.kcmshell_clock", "clockUpdated", this, SLOT(clockSkewed()));
 
-    connect( Solid::PowerManagement::notifier(), SIGNAL(resumingFromSuspend()), this , SLOT(clockSkewed()) );
+    connect( Solid::PowerManagement::notifier(), &Solid::PowerManagement::Notifier::resumingFromSuspend,
+             this, &TimeEngine::clockSkewed );
 }
 
 void TimeEngine::clockSkewed()

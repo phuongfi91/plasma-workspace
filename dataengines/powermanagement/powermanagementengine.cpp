@@ -26,7 +26,7 @@
 #include <solid/device.h>
 #include <solid/deviceinterface.h>
 #include <solid/battery.h>
-#include <solid/powermanagement.h>
+#include <Solid/Power/PowerManagement>
 
 #include <klocalizedstring.h>
 #include <KIdleTime>
@@ -207,8 +207,8 @@ bool PowermanagementEngine::sourceRequestEvent(const QString &name)
 
         m_sources = basicSourceNames() + batterySources;
     } else if (name == "AC Adapter") {
-        connect(Solid::PowerManagement::notifier(), SIGNAL(appShouldConserveResourcesChanged(bool)),
-                this, SLOT(updateAcPlugState(bool)));
+        connect(Solid::PowerManagement::notifier(), &Solid::PowerManagement::Notifier::appShouldConserveResourcesChanged,
+                this, &PowermanagementEngine::updateAcPlugState);
         updateAcPlugState(Solid::PowerManagement::appShouldConserveResources());
     } else if (name == "Sleep States") {
         const QSet<Solid::PowerManagement::SleepState> sleepstates = Solid::PowerManagement::supportedSleepStates();
@@ -273,20 +273,7 @@ bool PowermanagementEngine::sourceRequestEvent(const QString &name)
             watcher->deleteLater();
         });
 
-
-        QDBusMessage lidIsPresentMsg = QDBusMessage::createMethodCall(SOLID_POWERMANAGEMENT_SERVICE,
-                                                                      QStringLiteral("/org/kde/Solid/PowerManagement"),
-                                                                      SOLID_POWERMANAGEMENT_SERVICE,
-                                                                      QStringLiteral("isLidPresent"));
-        QDBusPendingReply<bool> lidIsPresentReply = QDBusConnection::sessionBus().asyncCall(lidIsPresentMsg);
-        QDBusPendingCallWatcher *lidIsPresentWatcher = new QDBusPendingCallWatcher(lidIsPresentReply, this);
-        QObject::connect(lidIsPresentWatcher, &QDBusPendingCallWatcher::finished, this, [this](QDBusPendingCallWatcher *watcher) {
-            QDBusPendingReply<bool> reply = *watcher;
-            if (!reply.isError()) {
-                setData("PowerDevil", "Is Lid Present", reply.value());
-            }
-            watcher->deleteLater();
-        });
+        setData("PowerDevil", "Is Lid Present", Solid::PowerManagement::hasLid());
 
         QDBusMessage triggersLidActionMsg = QDBusMessage::createMethodCall(SOLID_POWERMANAGEMENT_SERVICE,
                                                                            QStringLiteral("/org/kde/Solid/PowerManagement/Actions/HandleButtonEvents"),

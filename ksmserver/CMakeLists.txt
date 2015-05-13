@@ -72,7 +72,7 @@ target_link_libraries(kdeinit_ksmserver
     KF5::Declarative
     KF5::DBusAddons
     KF5::Package
-    KF5::KDELibs4Support # Solid/PowerManagement
+    KF5::SolidPower # Solid/PowerManagement
 )
 
 install(TARGETS kdeinit_ksmserver ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

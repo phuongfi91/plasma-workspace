@@ -31,7 +31,7 @@
 #include <KLocalizedString>
 #include <KRun>
 
-#include <Solid/PowerManagement>
+#include <Solid/Power/PowerManagement>
 
 K_EXPORT_PLASMA_RUNNER(powerdevil, PowerDevilRunner)
 
@@ -77,7 +77,7 @@ void PowerDevilRunner::updateSyntaxes()
                      i18n("Lists system suspend (e.g. sleep, hibernate) options "
                           "and allows them to be activated")));
 
-    QSet< Solid::PowerManagement::SleepState > states = Solid::PowerManagement::supportedSleepStates();
+    const QSet< Solid::PowerManagement::SleepState > states = Solid::PowerManagement::supportedSleepStates();
 
     if (states.contains(Solid::PowerManagement::SuspendState)) {
         Plasma::RunnerSyntax sleepSyntax(i18nc("Note this is a KRunner keyword", "sleep"),
@@ -242,7 +242,7 @@ void PowerDevilRunner::match(Plasma::RunnerContext &context)
             matches.append(match2);
         }
     } else if (term.compare(i18nc("Note this is a KRunner keyword", "suspend"), Qt::CaseInsensitive) == 0) {
-        QSet< Solid::PowerManagement::SleepState > states = Solid::PowerManagement::supportedSleepStates();
+        const QSet< Solid::PowerManagement::SleepState > states = Solid::PowerManagement::supportedSleepStates();
 
         if (states.contains(Solid::PowerManagement::SuspendState)) {
             addSuspendMatch(Solid::PowerManagement::SuspendState, matches);
@@ -311,10 +311,10 @@ void PowerDevilRunner::run(const Plasma::RunnerContext &context, const Plasma::Q
         switch ((Solid::PowerManagement::SleepState)match.data().toInt()) {
             case Solid::PowerManagement::SuspendState:
             case Solid::PowerManagement::StandbyState:
-                Solid::PowerManagement::requestSleep(Solid::PowerManagement::SuspendState, 0, 0);
+                Solid::PowerManagement::suspend();
                 break;
             case Solid::PowerManagement::HibernateState:
-                Solid::PowerManagement::requestSleep(Solid::PowerManagement::HibernateState, 0, 0);
+                Solid::PowerManagement::hibernate();
                 break;
         }
     }

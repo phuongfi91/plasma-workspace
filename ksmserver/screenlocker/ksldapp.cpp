@@ -39,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <KNotification>
 #include <KGlobalAccel>
 #include <KCrash>
+#include <Solid/Power/PowerManagement>
 // Qt
 #include <QAction>
 #include <QTimer>
@@ -292,11 +293,8 @@ void KSldApp::initialize()
     // fallback for non-logind systems:
     // connect to signal emitted by Solid. This is emitted unconditionally also on logind enabled systems
     // ksld ignores it in case logind is used
-    QDBusConnection::sessionBus().connect(QStringLiteral("org.kde.Solid.PowerManagement"),
-                                          QStringLiteral("/org/kde/Solid/PowerManagement/Actions/SuspendSession"),
-                                          QStringLiteral("org.kde.Solid.PowerManagement.Actions.SuspendSession"),
-                                          QStringLiteral("aboutToSuspend"),
-                                          this, SLOT(solidSuspend()));
+    connect(Solid::PowerManagement::notifier(), &Solid::PowerManagement::Notifier::aboutToSuspend,
+            this, &KSldApp::solidSuspend);
 
     configure();
 }

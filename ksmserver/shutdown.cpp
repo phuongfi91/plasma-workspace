@@ -73,7 +73,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "client.h"
 #include "shutdowndlg.h"
 
-#include <solid/powermanagement.h>
+#include <Solid/Power/PowerManagement>
 
 #include <QDesktopWidget>
 #include <QX11Info>

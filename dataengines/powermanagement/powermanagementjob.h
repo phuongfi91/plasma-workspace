@@ -29,11 +29,11 @@ class PowerManagementJob : public Plasma::ServiceJob
 
     public:
         PowerManagementJob(const QString &operation, QMap<QString, QVariant> &parameters,
-                           QObject *parent = 0);
+                           QObject *parent = Q_NULLPTR);
         ~PowerManagementJob();
 
     protected:
-        void start();
+        void start() Q_DECL_OVERRIDE;
 
     private:
         void requestShutDown();

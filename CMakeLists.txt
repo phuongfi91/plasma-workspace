@@ -28,6 +28,8 @@ find_package(KF5 5.1 REQUIRED COMPONENTS Baloo)
 find_package(KF5TextEditor)
 find_package(KWinDBusInterface CONFIG REQUIRED)
 find_package(KF5WebKit)
+# Solid Power has its own version number for now
+find_package(KF5 5.8 REQUIRED SolidPower)
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)

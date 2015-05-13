@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <kdeclarative/kdeclarative.h>
 #include <KUser>
 #include <KWindowSystem>
-#include <Solid/PowerManagement>
+#include <Solid/Power/PowerManagement>
 //Plasma
 #include <KPackage/Package>
 #include <KPackage/PackageStructure>
@@ -157,7 +157,6 @@ void UnlockApp::desktopResized()
 
     // extend views and savers to current demand
     const bool canLogout = KAuthorized::authorizeKAction(QStringLiteral("logout")) && KAuthorized::authorize(QStringLiteral("logout"));
-    const QSet<Solid::PowerManagement::SleepState> spdMethods = Solid::PowerManagement::supportedSleepStates();
     for (int i = m_views.count(); i < nScreens; ++i) {
         connect(QGuiApplication::screens()[i], SIGNAL(destroyed(QObject*)), SLOT(desktopResized()));
         // create the view
@@ -201,16 +200,16 @@ void UnlockApp::desktopResized()
         lockProperty.write(m_immediateLock || (!m_noLock && !m_delayedLockTimer));
 
         QQmlProperty sleepProperty(view->rootObject(), QStringLiteral("suspendToRamSupported"));
-        sleepProperty.write(spdMethods.contains(Solid::PowerManagement::SuspendState));
-        if (spdMethods.contains(Solid::PowerManagement::SuspendState) &&
-            view->rootObject()->metaObject()->indexOfSignal(QMetaObject::normalizedSignature("suspendToRam()").constData()) != -1) {
+        sleepProperty.write(Solid::PowerManagement::canSuspend());
+        if (Solid::PowerManagement::canSuspend() &&
+                view->rootObject()->metaObject()->indexOfSignal(QMetaObject::normalizedSignature("suspendToRam()").constData()) != -1) {
             connect(view->rootObject(), SIGNAL(suspendToRam()), SLOT(suspendToRam()));
         }
 
         QQmlProperty hibernateProperty(view->rootObject(), QStringLiteral("suspendToDiskSupported"));
-        hibernateProperty.write(spdMethods.contains(Solid::PowerManagement::HibernateState));
-        if (spdMethods.contains(Solid::PowerManagement::HibernateState) &&
-            view->rootObject()->metaObject()->indexOfSignal(QMetaObject::normalizedSignature("suspendToDisk()").constData()) != -1) {
+        hibernateProperty.write(Solid::PowerManagement::canHibernate());
+        if (Solid::PowerManagement::canHibernate() &&
+                view->rootObject()->metaObject()->indexOfSignal(QMetaObject::normalizedSignature("suspendToDisk()").constData()) != -1) {
             connect(view->rootObject(), SIGNAL(suspendToDisk()), SLOT(suspendToDisk()));
         }
 
@@ -307,7 +306,7 @@ void UnlockApp::suspendToRam()
     m_ignoreRequests = true;
     m_resetRequestIgnoreTimer->start();
 
-    Solid::PowerManagement::requestSleep(Solid::PowerManagement::SuspendState, 0, 0);
+    Solid::PowerManagement::suspend();
 
 }
 
@@ -320,7 +319,7 @@ void UnlockApp::suspendToDisk()
     m_ignoreRequests = true;
     m_resetRequestIgnoreTimer->start();
 
-    Solid::PowerManagement::requestSleep(Solid::PowerManagement::HibernateState, 0, 0);
+    Solid::PowerManagement::hibernate();
 }
 
 void UnlockApp::setTesting(bool enable)

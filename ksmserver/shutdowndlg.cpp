@@ -50,7 +50,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <KIconLoader>
 #include <KLocalizedString>
 #include <KUser>
-#include <Solid/PowerManagement>
+#include <Solid/Power/PowerManagement>
 #include <KWindowSystem>
 #include <KDeclarative/KDeclarative>
 #include <KSharedConfig>
@@ -114,7 +114,7 @@ KSMShutdownDlg::KSMShutdownDlg( QWindow* parent,
     context->setContextProperty(QStringLiteral("ShutdownType"), mapShutdownType);
 
     QQmlPropertyMap *mapSpdMethods = new QQmlPropertyMap(this);
-    QSet<Solid::PowerManagement::SleepState> spdMethods = Solid::PowerManagement::supportedSleepStates();
+    const QSet<Solid::PowerManagement::SleepState> spdMethods = Solid::PowerManagement::supportedSleepStates();
     mapSpdMethods->insert(QStringLiteral("StandbyState"), QVariant::fromValue(spdMethods.contains(Solid::PowerManagement::StandbyState)));
     mapSpdMethods->insert(QStringLiteral("SuspendState"), QVariant::fromValue(spdMethods.contains(Solid::PowerManagement::SuspendState)));
     mapSpdMethods->insert(QStringLiteral("HibernateState"), QVariant::fromValue(spdMethods.contains(Solid::PowerManagement::HibernateState)));
@@ -125,7 +125,6 @@ KSMShutdownDlg::KSMShutdownDlg( QWindow* parent,
                           .readEntry("BootManager", "None");
     context->setContextProperty(QStringLiteral("bootManager"), bootManager);
 
-    QStringList options;
     int def, cur;
     if ( KDisplayManager().bootOptions( rebootOptions, def, cur ) ) {
         if ( cur > -1 ) {
@@ -249,13 +248,13 @@ void KSMShutdownDlg::slotSuspend(int spdMethod)
 {
     m_bootOption.clear();
     switch (spdMethod) {
-        case Solid::PowerManagement::StandbyState:
-        case Solid::PowerManagement::SuspendState:
-            Solid::PowerManagement::requestSleep(Solid::PowerManagement::SuspendState, 0, 0);
-            break;
-        case Solid::PowerManagement::HibernateState:
-            Solid::PowerManagement::requestSleep(Solid::PowerManagement::HibernateState, 0, 0);
-            break;
+    case Solid::PowerManagement::StandbyState:
+    case Solid::PowerManagement::SuspendState:
+        Solid::PowerManagement::suspend();
+        break;
+    case Solid::PowerManagement::HibernateState:
+        Solid::PowerManagement::hibernate();
+        break;
     }
     reject();
 }

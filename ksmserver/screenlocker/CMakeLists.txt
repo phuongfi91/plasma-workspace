@@ -48,6 +48,7 @@ target_link_libraries(screenlocker_static
    KF5::XmlGui
    KF5::Crash
    KF5::WindowSystem
+   KF5::SolidPower
    ${X11_LIBRARIES}
    ${X11_Xcursor_LIB}
    XCB::XCB

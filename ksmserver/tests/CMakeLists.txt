@@ -13,7 +13,6 @@ add_executable(testsh ${testsh_SRCS})
 target_link_libraries(testsh
      ${SCREEN_LOCKER}
     PW::KWorkspace
-    KF5::KDELibs4Support
     KF5::XmlGui
     KF5::GlobalAccel
     KF5::KIOCore
@@ -22,10 +21,12 @@ target_link_libraries(testsh
     ${X11_LIBRARIES}
     ${X11_Xrender_LIB}
     Qt5::X11Extras
-    KF5::Solid
+    KF5::SolidPower
     Qt5::Quick
     KF5::Declarative
     KF5::DBusAddons
     KF5::Plasma
     KF5::PlasmaQuick
+    KF5::IconThemes
+    KF5::I18n
 )

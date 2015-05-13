@@ -30,7 +30,7 @@
 
 #include "powermanagementjob.h"
 
-#include <Solid/PowerManagement>
+#include <Solid/Power/PowerManagement>
 
 PowerManagementJob::PowerManagementJob(const QString &operation, QMap<QString, QVariant> &parameters, QObject *parent) :
     ServiceJob(parent->objectName(), operation, parameters, parent)
@@ -58,20 +58,20 @@ void PowerManagementJob::start()
         setResult(false);
         return;
     } else if (operation == "suspend" || operation == "suspendToRam") {
-        Solid::PowerManagement::requestSleep(Solid::PowerManagement::SuspendState, 0, 0);
-        setResult(Solid::PowerManagement::supportedSleepStates().contains(Solid::PowerManagement::SuspendState));
+        Solid::PowerManagement::suspend();
+        setResult(Solid::PowerManagement::canSuspend());
         return;
     } else if (operation == "suspendToDisk") {
-        Solid::PowerManagement::requestSleep(Solid::PowerManagement::HibernateState, 0, 0);
-        setResult(Solid::PowerManagement::supportedSleepStates().contains(Solid::PowerManagement::HibernateState));
+        Solid::PowerManagement::hibernate();
+        setResult(Solid::PowerManagement::canHibernate());
         return;
     } else if (operation == "suspendHybrid") {
-        Solid::PowerManagement::requestSleep(Solid::PowerManagement::HybridSuspendState, 0, 0);
-        setResult(Solid::PowerManagement::supportedSleepStates().contains(Solid::PowerManagement::HybridSuspendState));
+        Solid::PowerManagement::hybridSleep();
+        setResult(Solid::PowerManagement::canHybridSleep());
         return;
     } else if (operation == "requestShutDown") {
         requestShutDown();
-        setResult(true);
+        setResult(Solid::PowerManagement::canShutdown());
         return;
     } else if (operation == "switchUser") {
         // Taken from kickoff/core/itemhandlers.cpp
