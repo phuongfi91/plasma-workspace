@@ -64,7 +64,7 @@ function updateTooltip(remainingTime) {
     } else if (pmSource.data["Battery"]["State"] === "FullyCharged") {
         batteries.tooltipImage = "battery-100";
         batteries.tooltipMainText = i18n("Fully Charged");
-    } else if (pmSource.data["AC Adapter"] && pmSource.data["AC Adapter"]["Plugged in"]) {
+    } else if (pmSource.data["Battery"]["State"] === "Charging") {
         batteries.tooltipImage = "battery-charging"
         batteries.tooltipMainText = i18n("%1%. Charging", pmSource.data["Battery"]["Percent"])
     } else {
