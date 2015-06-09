@@ -45,9 +45,6 @@ Item {
     Plasmoid.compactRepresentation: DigitalClock { }
     Plasmoid.fullRepresentation: CalendarView { }
 
-    Plasmoid.toolTipMainText: Qt.formatDate(tzDate,"dddd")
-    Plasmoid.toolTipSubText:  Qt.formatDate(tzDate, dateFormatString)
-
     PlasmaCore.DataSource {
         id: dataSource
         engine: "time"

@@ -267,6 +267,13 @@ Item {
                 setupLabels();
             }
         }
+
+        PlasmaCore.ToolTipArea {
+            anchors.fill: parent
+            mainItem: Tooltip {
+
+            }
+        }
     }
 
     Flow {
@@ -410,7 +417,7 @@ Item {
                 timezoneString += "<br />" + timeForZone(i, false);
             }
         }
-        plasmoid.toolTipSubText = timezoneString;
+//         plasmoid.toolTipSubText = timezoneString;
     }
 
     function timeForZone(zone, addlinebreaks) {
