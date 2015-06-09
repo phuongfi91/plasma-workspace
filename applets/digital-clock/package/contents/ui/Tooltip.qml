@@ -118,7 +118,8 @@ Item {
 
                     PlasmaComponents.Label {
                         id: timezone
-                        Layout.fillWidth: true
+                        // Layout.fillWidth is buggy here
+                        Layout.alignment: index % 2 === 0 ? Qt.AlignRight : Qt.AlignLeft
 
                         wrapMode: Text.NoWrap
                         text: index % 2 == 0 ? nameForZone(modelData) : timeForZone(modelData)
