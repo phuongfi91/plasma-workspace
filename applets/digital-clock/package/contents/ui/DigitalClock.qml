@@ -270,8 +270,13 @@ Item {
 
         PlasmaCore.ToolTipArea {
             anchors.fill: parent
-            mainItem: Tooltip {
+            mainItem:     Loader {
+                id: tooltipLoader
 
+                Layout.minimumWidth: item.Layout.minimumWidth
+                Layout.minimumHeight: item.Layout.minimumHeight
+
+                source: "Tooltip.qml"
             }
         }
     }
