@@ -52,7 +52,6 @@ Item {
         var timezoneString = plasmoid.configuration.displayTimezoneAsCode ? dataSource.data[zone]["Timezone Abbreviation"]
                                                                           : TimezonesI18n.i18nCity(dataSource.data[zone]["Timezone City"]);
 
-        print(timezoneString);
         return timezoneString;
     }
 
