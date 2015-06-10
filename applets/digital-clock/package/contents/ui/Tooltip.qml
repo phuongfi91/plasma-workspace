@@ -125,6 +125,8 @@ Item {
                         text: index % 2 == 0 ? nameForZone(modelData) : timeForZone(modelData)
                         font.weight: modelData === plasmoid.configuration.lastSelectedTimezone ? Font.Bold : Font.Normal
                         horizontalAlignment: index % 2 == 0 ? Text.AlignRight : Text.AlignLeft
+                        height: paintedHeight
+                        elide: Text.ElideNone
                         opacity: 0.6
                     }
                 }
