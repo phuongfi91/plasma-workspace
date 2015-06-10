@@ -246,11 +246,11 @@ Item {
             // See: http://qt-project.org/doc/qt-5/qml-qtquick-wheelevent.html#angleDelta-prop
             while (wheelDelta >= 120) {
                 wheelDelta -= 120;
-                newIndex++;
+                newIndex--;
             }
             while (wheelDelta <= -120) {
                 wheelDelta += 120;
-                newIndex--;
+                newIndex++;
             }
 
             if (newIndex >= plasmoid.configuration.selectedTimeZones.length) {
