@@ -5,6 +5,7 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ../kcheckpass
     ${CMAKE_CURRENT_BINARY_DIR}/../../
+    ${QtAccountsService_INCLUDE_DIRS}
 )
 
 set(kscreenlocker_greet_SRCS
@@ -43,6 +44,7 @@ target_link_libraries(kscreenlocker_greet
                         KF5::KDELibs4Support
                         KF5::WaylandClient
                         Wayland::Client
+                        ${QtAccountsService_LIBRARIES}
                         )
 
 install(TARGETS kscreenlocker_greet DESTINATION ${KDE_INSTALL_LIBEXECDIR})
