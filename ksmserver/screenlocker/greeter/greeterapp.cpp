@@ -195,9 +195,10 @@ void UnlockApp::desktopResized()
         const KUser user;
         const QString fullName = user.property(KUser::FullName).toString();
         AccountsService::AccountsManager accountsManager;
+        QString faceIconPath = accountsManager.findUserIconFile(user.loginName());
 
         context->setContextProperty(QStringLiteral("kscreenlocker_userName"), fullName.isEmpty() ? user.loginName() : fullName);
-        context->setContextProperty(QStringLiteral("kscreenlocker_userImage"), accountsManager.findUserIconFile(user.loginName()));
+        context->setContextProperty(QStringLiteral("kscreenlocker_userImage"), QFile::exists(faceIconPath) ? faceIconPath : user.faceIconPath());
         context->setContextProperty(QStringLiteral("authenticator"), m_authenticator);
         context->setContextProperty(QStringLiteral("backgroundPath"), KScreenSaverSettings::themeBackground());
 
