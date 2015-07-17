@@ -40,7 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
 // AccountsService
-#include <AccountsManager>
+#include <QtAccountsService/AccountsManager>
 // Qt
 #include <QtCore/QTimer>
 #include <QtGui/QKeyEvent>
@@ -194,7 +194,7 @@ void UnlockApp::desktopResized()
         QQmlContext* context = view->engine()->rootContext();
         const KUser user;
         const QString fullName = user.property(KUser::FullName).toString();
-        AccountsService::AccountsManager accountsManager;
+        QtAccountsService::AccountsManager accountsManager;
         QString faceIconPath = accountsManager.findUserIconFile(user.loginName());
 
         context->setContextProperty(QStringLiteral("kscreenlocker_userName"), fullName.isEmpty() ? user.loginName() : fullName);
