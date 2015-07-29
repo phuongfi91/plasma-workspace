@@ -94,11 +94,13 @@ find_package(Wayland 1.3 COMPONENTS Client Server)
 set_package_properties(Wayland PROPERTIES
                        TYPE REQUIRED
                        PURPOSE "Required for building screenlocker")
+
 find_package(QtAccountsService)
-set_package_properties(QtAccountsService PROPERTIES DESCRIPTION "Qt-style API to use freedesktop.org's AccountsService DBus service"
-                    URL "https://github.com/AOSC-Dev/qtaccountsservice"
-                    TYPE REQUIRED
-                    )
+set_package_properties(QtAccountsService PROPERTIES 
+    DESCRIPTION "Qt-style API to use freedesktop.org's AccountsService DBus service"
+    URL "https://github.com/AOSC-Dev/qtaccountsservice"
+    TYPE REQUIRED
+)
 
 include(ConfigureChecks.cmake)
 
