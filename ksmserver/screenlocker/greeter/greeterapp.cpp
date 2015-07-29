@@ -194,8 +194,13 @@ void UnlockApp::desktopResized()
         QQmlContext* context = view->engine()->rootContext();
         const KUser user;
         const QString fullName = user.property(KUser::FullName).toString();
-        QtAccountsService::AccountsManager accountsManager;
-        QString faceIconPath = accountsManager.findUserIconFile(user.loginName());
+        QtAccountsService::UserAccount* userAccount = new QtAccountsService::UserAccount;
+        QString faceIconPath = "";
+        if (userAccount) {
+            faceIconPath = userAccount->iconFileName();
+            delete userAccount;
+            userAccount = nullptr;
+        }
 
         context->setContextProperty(QStringLiteral("kscreenlocker_userName"), fullName.isEmpty() ? user.loginName() : fullName);
         context->setContextProperty(QStringLiteral("kscreenlocker_userImage"), QFile::exists(faceIconPath) ? faceIconPath : user.faceIconPath());
