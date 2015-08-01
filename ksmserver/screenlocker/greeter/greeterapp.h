@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <KPackage/PackageStructure>
 #include <QQuickView>
 
+#include <QtAccountsService/UserAccount>
+
 namespace KWayland {
 namespace Client {
     class ConnectionThread;
@@ -92,6 +94,7 @@ private:
     KWayland::Client::Registry *m_ksldRegistry = nullptr;
     QThread *m_ksldConnectionThread = nullptr;
     org_kde_ksld *m_ksldInterface = nullptr;
+    QtAccountsService::UserAccount *m_userAccount = nullptr;
 };
 } // namespace
 

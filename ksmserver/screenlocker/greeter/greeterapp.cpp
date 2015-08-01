@@ -39,8 +39,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
-// AccountsService
-#include <QtAccountsService/AccountsManager>
 // Qt
 #include <QtCore/QTimer>
 #include <QtGui/QKeyEvent>
@@ -84,6 +82,7 @@ UnlockApp::UnlockApp(int &argc, char **argv)
     connect(m_authenticator, &Authenticator::succeeded, this, &QCoreApplication::quit);
     initialize();
     connect(this, &UnlockApp::screenAdded, this, &UnlockApp::desktopResized);
+    m_userAccount = new QtAccountsService::UserAccount;
 }
 
 UnlockApp::~UnlockApp()
@@ -100,6 +99,10 @@ UnlockApp::~UnlockApp()
         m_ksldConnection->deleteLater();
         m_ksldConnectionThread->quit();
         m_ksldConnectionThread->wait();
+    }
+    if (m_userAccount) {
+        delete m_userAccount;
+        m_userAccount = nullptr;
     }
 }
 
@@ -194,13 +197,9 @@ void UnlockApp::desktopResized()
         QQmlContext* context = view->engine()->rootContext();
         const KUser user;
         const QString fullName = user.property(KUser::FullName).toString();
-        QtAccountsService::UserAccount* userAccount = new QtAccountsService::UserAccount;
         QString faceIconPath = "";
-        if (userAccount) {
-            faceIconPath = userAccount->iconFileName();
-            delete userAccount;
-            userAccount = nullptr;
-        }
+        if (m_userAccount)
+            faceIconPath = m_userAccount->iconFileName();
 
         context->setContextProperty(QStringLiteral("kscreenlocker_userName"), fullName.isEmpty() ? user.loginName() : fullName);
         context->setContextProperty(QStringLiteral("kscreenlocker_userImage"), QFile::exists(faceIconPath) ? faceIconPath : user.faceIconPath());

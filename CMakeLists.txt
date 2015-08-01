@@ -11,6 +11,11 @@ find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Widgets Quick Quic
 find_package(ECM 1.8.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
+option(ENABLE_DEBUG "Enable debug" OFF)
+if(ENABLE_DEBUG)
+    add_definitions(-g -DDEBUG)
+endif()
+
 find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
                     Plasma DocTools Runner JsEmbed NotifyConfig Su NewStuff Wallet KCMUtils
                     IdleTime Declarative TextWidgets KDELibs4Support Crash GlobalAccel
