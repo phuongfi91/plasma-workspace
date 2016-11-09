@@ -83,6 +83,30 @@
 
 
 static const int s_configSyncDelay = 10000; // 10 seconds
+QtMessageHandler sDefaultMessageHandler = nullptr;
+
+void kscreenLog(const QString &msg, const QString &category)
+{
+    auto _cat = category;
+    _cat.remove("kscreen.");
+    const QString timestamp = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz");
+    QString logMessage = QString("\n%1 ; %2 : %4").arg(timestamp, _cat, msg);
+    QString logFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
+    QFile file(logFile);
+    if (!file.open(QIODevice::Append | QIODevice::Text)) {
+        return;
+    }
+    file.write(logMessage.toUtf8());
+}
+
+void kscreenLogOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    if (QString::fromLocal8Bit(context.category).startsWith(QLatin1String("kscreen"))) {
+        kscreenLog(localMsg.constData(), context.category);
+    }
+    sDefaultMessageHandler(type, context, msg);
+}
 
 ShellCorona::ShellCorona(QObject *parent)
     : Plasma::Corona(parent),

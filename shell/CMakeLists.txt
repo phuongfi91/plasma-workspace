@@ -45,6 +45,11 @@ ecm_qt_declare_logging_category(plasmashell HEADER debug.h
                                                CATEGORY_NAME kde.plasmashell
                                                DEFAULT_SEVERITY Info)
 
+ecm_qt_declare_logging_category(plasmashell HEADER debug.h
+                                               IDENTIFIER KSCREEN_PLASMASHELL
+                                               CATEGORY_NAME kscreen.plasmashell
+                                               DEFAULT_SEVERITY Info)
+
 set (plasma_shell_SRCS
     alternativeshelper.cpp
     main.cpp
