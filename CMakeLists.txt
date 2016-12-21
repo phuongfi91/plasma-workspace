@@ -9,7 +9,7 @@ set(KF5_MIN_VERSION "5.29.0")
 set(INSTALL_SDDM_THEME TRUE)
 find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Widgets Quick QuickWidgets Concurrent Test Script Network)
 find_package(ECM 1.8.0 REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)
@@ -84,6 +84,13 @@ set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
                         URL "http://www.x.org"
                         TYPE OPTIONAL
                         PURPOSE "Required for building the X11 based workspace")
+
+find_package(epoxy)
+set_package_properties(epoxy PROPERTIES DESCRIPTION "libepoxy"
+                       URL "http://github.com/anholt/libepoxy"
+                       TYPE REQUIRED
+                       PURPOSE "OpenGL dispatch library"
+                      )
 
 if(X11_FOUND)
   find_package(XCB MODULE REQUIRED COMPONENTS XCB)
