@@ -4,6 +4,7 @@ set(image_SRCS
     image.cpp
     imageplugin.cpp
     backgroundlistmodel.cpp
+    ktxreader.cpp
 )
 
 add_library(plasma_wallpaper_imageplugin SHARED ${image_SRCS})
