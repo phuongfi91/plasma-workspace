@@ -108,7 +108,15 @@ QString Image::photosPath() const
 
 QUrl Image::wallpaperPath() const
 {
-    return QUrl::fromLocalFile(m_wallpaperPath);
+    if (m_wallpaperPath.endsWith(QStringLiteral(".ktx"))) {
+        QUrl url;
+        url.setScheme(QStringLiteral("image"));
+        url.setHost(QStringLiteral("ktx"));
+        url.setPath(m_wallpaperPath);
+        return url;
+    } else {
+        return QUrl::fromLocalFile(m_wallpaperPath);
+    }
 }
 
 void Image::addUrl(const QString &url)
@@ -665,6 +673,8 @@ void Image::showFileDialog()
             QMimeType mime(db.mimeTypeForName(mimeType));
             imageGlobPatterns << mime.globPatterns();
         }
+
+        imageGlobPatterns << QStringLiteral("*.ktx");
 
         m_dialog = new QFileDialog(0, i18n("Open Image"),
                                       path,

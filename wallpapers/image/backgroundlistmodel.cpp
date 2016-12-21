@@ -528,6 +528,9 @@ const QStringList &BackgroundFinder::suffixes()
             }
         }
 
+        // KTX images are supported through the KtxProvider
+        suffixes.insert(QStringLiteral("*.ktx"));
+
         m_suffixes = suffixes.toList();
     }
 

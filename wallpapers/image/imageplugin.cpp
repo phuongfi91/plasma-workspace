@@ -19,9 +19,9 @@
 
 #include "imageplugin.h"
 #include "image.h"
+#include "ktxprovider.h"
 #include <QQmlContext>
 #include <QtQml>
-
 
 void ImagePlugin::registerTypes(const char *uri)
 {
@@ -31,5 +31,10 @@ void ImagePlugin::registerTypes(const char *uri)
     qmlRegisterType<QAbstractItemModel>();
 }
 
+void ImagePlugin::initializeEngine(QQmlEngine *engine, const char *uri)
+{
+    Q_ASSERT(uri == QLatin1String("org.kde.plasma.wallpapers.image"));
 
+    engine->addImageProvider("ktx", new KtxProvider);
+}
 
