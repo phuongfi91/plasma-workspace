@@ -44,6 +44,7 @@
 #include <KPackage/PackageLoader>
 
 #include "image.h"
+#include "ktxreader.h"
 
 QStringList BackgroundFinder::m_suffixes;
 
@@ -55,8 +56,17 @@ ImageSizeFinder::ImageSizeFinder(const QString &path, QObject *parent)
 
 void ImageSizeFinder::run()
 {
-    QImageReader reader(m_path);
-    Q_EMIT sizeFound(m_path, reader.size());
+    QSize size;
+
+    if (m_path.endsWith(".ktx")) {
+        KtxReader reader(m_path, KtxReader::HeaderOnly);
+        size = reader.size();
+    } else {
+        QImageReader reader(m_path);
+        size = reader.size();
+    }
+
+    Q_EMIT sizeFound(m_path, size);
 }
 
 
