@@ -5,6 +5,7 @@ set(image_SRCS
     imageplugin.cpp
     backgroundlistmodel.cpp
     ktxreader.cpp
+    ktxprovider.cpp
 )
 
 add_library(plasma_wallpaper_imageplugin SHARED ${image_SRCS})
@@ -21,6 +22,7 @@ target_link_libraries(plasma_wallpaper_imageplugin
          KF5::KIOWidgets # KFileDialog
          KF5::NewStuff
          KF5::GuiAddons
+         ${epoxy_LIBRARY}
          )
 
 add_subdirectory(autotests)
