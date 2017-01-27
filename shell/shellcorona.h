@@ -197,7 +197,7 @@ private Q_SLOTS:
     void populateAddPanelsMenu();
 
     void addOutput(QScreen* screen);
-    void primaryOutputChanged();
+    void primaryOutputChanged(int oldPrimaryId);
 
     void panelContainmentDestroyed(QObject* cont);
     void desktopContainmentDestroyed(QObject*);

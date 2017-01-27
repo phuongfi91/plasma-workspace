@@ -35,6 +35,9 @@ ScreenPool::ScreenPool(KSharedConfig::Ptr config, QObject *parent)
       m_configGroup(KConfigGroup(config, QStringLiteral("ScreenConnectors")))
 {
     qApp->installNativeEventFilter(this);
+    connect(qApp, &QGuiApplication::screenAdded, this, &ScreenPool::screenAdded);
+    connect(qApp, &QGuiApplication::screenRemoved, this, &ScreenPool::screenRemoved);
+    connect(qApp, &QGuiApplication::primaryScreenChanged, this, &ScreenPool::setPrimaryConnector);
 
     m_configSaveTimer.setSingleShot(true);
     connect(&m_configSaveTimer, &QTimer::timeout, this, [this](){
@@ -76,9 +79,7 @@ void ScreenPool::load()
     // at startup, if it' asked before corona::addOutput()
     // is performed, driving to the creation of a new containment
     for (QScreen* screen : qGuiApp->screens()) {
-        if (!m_idForConnector.contains(screen->name())) {
-            insertScreenMapping(firstAvailableId(), screen->name());
-        }
+        onScreenAdded(screen);
     }
 }
 
@@ -92,20 +93,100 @@ QString ScreenPool::primaryConnector() const
     return m_primaryConnector;
 }
 
-void ScreenPool::setPrimaryConnector(const QString &primary)
+void ScreenPool::onScreenAdded(QScreen *screen)
 {
+    const QString connector = screen->name();
+    if (id(connector) < 0) {
+        insertScreenMapping(firstAvailableId(), connector);
+    }
+
+    connect(screen, &QScreen::geometryChanged, this, &ScreenPool::reconsiderOutputs);
+
+    if (!isOutputRedundant(screen)) {
+        m_activeScreens.insert(screen);
+        emit screenAdded(screen);
+    }
+}
+
+void ScreenPool::onScreenRemoved(QScreen *screen)
+{
+    m_activeScreens.remove(screen);
+
+    //we deliberately don't update any ID mapping
+    emit screenRemoved(screen);
+
+    reconsiderOutputs();
+}
+
+QSet<QScreen*> ScreenPool::screens() const
+{
+    return m_activeScreens;
+}
+
+
+bool ScreenPool::isOutputRedundant(QScreen *screen)
+{
+    Q_ASSERT(screen);
+    const QRect geometry = screen->geometry();
+
+    //FIXME rebase with Marco's patch
+    foreach (QScreen* s, qGuiApp->screens()) {
+        if (screen == s) {
+            continue;
+        }
+
+        const QRect sGeometry = s->geometry();
+        if (sGeometry.contains(geometry, false) &&
+            sGeometry.width() > geometry.width() &&
+            sGeometry.height() > geometry.height()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void ScreenPool::reconsiderOutputs()
+{
+    for(QScreen *screen: qApp->screens()) {
+        bool wasActive = m_activeScreens.contains(screen);
+        bool nowRelevant = !isOutputRedundant(screen);
+        if (wasActive && !nowRelevant) {
+            m_activeScreens.remove(screen);
+            emit screenRemoved(screen);
+        }
+        else if (!wasActive && !nowRelevant) {
+            m_activeScreens.insert(screen);
+            emit screenAdded(screen);
+        }
+    }
+}
+
+void ScreenPool::setPrimaryConnector(QScreen *newPrimary)
+{
+    const QString primary = newPrimary->name();
     if (m_primaryConnector == primary) {
         return;
     }
     Q_ASSERT(m_idForConnector.contains(primary));
 
-    int oldIdForPrimary = m_idForConnector.value(primary);
+    int oldIdForNewPrimary = m_idForConnector.value(primary);
 
     m_idForConnector[primary] = 0;
     m_connectorForId[0] = primary;
-    m_idForConnector[m_primaryConnector] = oldIdForPrimary;
-    m_connectorForId[oldIdForPrimary] = m_primaryConnector;
+    m_idForConnector[m_primaryConnector] = oldIdForNewPrimary;
+    m_connectorForId[oldIdForNewPrimary] = m_primaryConnector;
     m_primaryConnector = primary;
+
+    emit primaryIdChanged(oldIdForNewPrimary);
+
+    //Since the primary screen is considered more important
+    //then the others, having the primary changed may have changed what outputs are redundant and what are not
+    //TODO: for a particular corner case, in which in the same moment the primary screen changes *and* geometries change to make former redundant screens to not be anymore, instead of doinf reconsiderOutputs() here, it may be better to instead put here the adding of new outputs and after the switch dance has been done, at the bottom of this function remove the eventual redundant ones
+
+    reconsiderOutputs();
+
+    reconsiderOutputs();
     save();
 }
 
@@ -194,7 +275,7 @@ bool ScreenPool::nativeEventFilter(const QByteArray& eventType, void* message, l
                 insertScreenMapping(firstAvailableId(), qGuiApp->primaryScreen()->name());
             }
             //switch the primary screen in the pool
-            setPrimaryConnector(qGuiApp->primaryScreen()->name());
+            setPrimaryConnector(qGuiApp->primaryScreen());
         }
     }
 #endif

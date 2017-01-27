@@ -24,10 +24,20 @@
 #include <QHash>
 #include <QString>
 #include <QTimer>
+#include <QSet>
 #include <QAbstractNativeEventFilter>
 
 #include <KConfigGroup>
 #include <KSharedConfig>
+
+class QScreen;
+
+/*
+ * This class performs three major functions:
+ *   - It acts as a filter over QGuiApplication::screens() removing overlapping screens and signalling that as appropriate
+ *   - It provides a consistent ID mapping with the following rules
+ *   - Works around an Qt XCB backend bug
+ */
 
 class ScreenPool : public QObject, public QAbstractNativeEventFilter
 {
@@ -39,30 +49,63 @@ public:
     ~ScreenPool() override;
 
     QString primaryConnector() const;
-    void setPrimaryConnector(const QString &primary);
 
-    void insertScreenMapping(int id, const QString &connector);
 
     int id(const QString &connector) const;
 
     QString connector(int id) const;
 
-    int firstAvailableId() const;
-
     //all ids that are known, included screens not enabled at the moment
     QList <int> knownIds() const;
+
+    QSet<QScreen*> screens() const;
+
+signals:
+    /*
+     * A new screen has been added
+     */
+    void screenAdded(QScreen *added);
+
+    /*
+     * A screen is about to be removed.
+     * The QScreen object is still valid at the time of this signal.
+     */
+    void screenRemoved(QScreen *added);
+
+    /*
+     * Signals that this IDs of two screens have swapped, and that they now represent
+     * a different QScreen.
+     *
+     * oldPrimaryId is now at ID 0, and ID 0 is now at oldPrimaryId
+     *
+     */
+    void primaryIdChanged(int oldPrimaryId);
 
 protected:
     bool nativeEventFilter(const QByteArray & eventType, void * message, long * result) Q_DECL_OVERRIDE;
 
 private:
+    void onScreenAdded(QScreen *screen);
+    void onScreenRemoved(QScreen *screen);
+    void setPrimaryConnector(QScreen *newPrimary);
+
+    void reconsiderOutputs();
+    bool isOutputRedundant(QScreen *screen);
+
+    void insertScreenMapping(int id, const QString &connector);
+    int firstAvailableId() const;
+
     void save();
 
     KConfigGroup m_configGroup;
     QString m_primaryConnector;
-    //order is important
+
+    //order is important. This always contains all screens
     QMap<int, QString> m_connectorForId;
     QHash<QString, int> m_idForConnector;
+
+    //only non-duplicate screens
+    QSet<QScreen *> m_activeScreens;
 
     QTimer m_configSaveTimer;
 };
