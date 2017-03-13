@@ -28,6 +28,11 @@ ConfigModel {
     id: configModel
 
     ConfigCategory {
+         name: i18n("Face")
+         icon: "preferences-desktop-color"
+         source: "configFace.qml"
+    }
+    ConfigCategory {
          name: i18n("Appearance")
          icon: "preferences-desktop-color"
          source: "configAppearance.qml"

@@ -50,7 +50,12 @@ Item {
     }
 
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
-    Plasmoid.compactRepresentation: DigitalClock { }
+    Plasmoid.compactRepresentation: Loader {
+        source: plasmoid.configuration.clockFace
+        //source: "faces/BasicClock.qml"
+
+        //DigitalClock { }
+    }
     Plasmoid.fullRepresentation: CalendarView { }
 
     Plasmoid.toolTipItem: Loader {

@@ -32,6 +32,8 @@ Item {
 
     signal configurationChanged
 
+    property string cfg_clockFace: ""
+
     property string cfg_fontFamily
     property alias cfg_boldText: boldCheckBox.checked
     property string cfg_timeFormat: ""
@@ -83,6 +85,33 @@ Item {
                 columns: 2
                 QtLayouts.Layout.fillWidth: true
 
+                QtControls.Label {
+                    QtLayouts.Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                    text: i18n("Clock face:")
+                }
+
+                QtControls.ComboBox {
+                    id: clockFaceComboBox
+                    QtLayouts.Layout.fillWidth: true
+                    // ComboBox's sizing is just utterly broken
+                    QtLayouts.Layout.minimumWidth: units.gridUnit * 10
+                    model: ["faces/BasicClock.qml", "faces/DigitalClock.qml"]
+                    onCurrentIndexChanged: {
+                        var current = model[currentIndex]
+                        print("Current face:" + current);
+                        if (current) {
+                            cfg_clockFace = current
+                            appearancePage.configurationChanged()
+                        }
+                    }
+                }
+
+                // spacer, cannot do Qt.AlignTop on the font style label + rowSpan 3, otherwise looks odd
+                Item {
+                    QtLayouts.Layout.fillWidth: true
+                    QtLayouts.Layout.rowSpan: 2
+                }
                 QtControls.Label {
                     QtLayouts.Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
