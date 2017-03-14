@@ -19,20 +19,15 @@
  */
 
 import QtQuick 2.6
-import QtQuick.Layouts 1.1
-import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as Components
-import org.kde.plasma.private.digitalclock 1.0
 
 ClockBase {
-
     id: main
-   /*
-    * Visible elements
-    *
-    */
+
+    contentItem: _contentItem
+
     Item {
-        id: contentItem
+        id: _contentItem
         anchors.verticalCenter: main.verticalCenter
 
         Grid {
@@ -111,8 +106,4 @@ ClockBase {
             verticalAlignment: Text.AlignVCenter
         }
     }
-    /*
-     * end: Visible Elements
-     *
-     */
 }

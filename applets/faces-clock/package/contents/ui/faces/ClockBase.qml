@@ -59,6 +59,7 @@ Item {
                                         (main.showDate || timezoneLabel.visible)
 
     property alias sizehelper: sizehelperItem
+    property Item contentItem
 
     onDateFormatChanged: {
         setupLabels();
@@ -444,96 +445,6 @@ Item {
         interval: plasmoid.configuration.showSeconds ? 1000 : 60000
         intervalAlignment: plasmoid.configuration.showSeconds ? PlasmaCore.Types.NoAlignment : PlasmaCore.Types.AlignToMinute
     }
-
-
-
-//    /*
-//     * Visible elements
-//     *
-//     */
-//     Item {
-//         id: contentItem
-//         anchors.verticalCenter: main.verticalCenter
-//
-//         Grid {
-//             id: labelsGrid
-//
-//             rows: 1
-//             horizontalItemAlignment: Grid.AlignHCenter
-//             verticalItemAlignment: Grid.AlignVCenter
-//
-//             flow: Grid.TopToBottom
-//             columnSpacing: units.smallSpacing
-//
-//             Rectangle {
-//                 height: 0.8 * sizehelper.height
-//                 width: 1
-//                 visible: main.showDate && main.oneLineMode
-//
-//                 color: theme.textColor
-//                 opacity: 0.4
-//             }
-//
-//             Components.Label  {
-//                 id: timeLabel
-//
-//                 font {
-//                     family: plasmoid.configuration.fontFamily || theme.defaultFont.family
-//                     weight: plasmoid.configuration.boldText ? Font.Bold : theme.defaultFont.weight
-//                     italic: plasmoid.configuration.italicText
-//                     pixelSize: 1024
-//                 }
-//                 minimumPixelSize: 1
-//
-//                 text: {
-//                     // get the time for the given timezone from the dataengine
-//                     var now = dataSource.data[plasmoid.configuration.lastSelectedTimezone]["DateTime"];
-//                     // get current UTC time
-//                     var msUTC = now.getTime() + (now.getTimezoneOffset() * 60000);
-//                     // add the dataengine TZ offset to it
-//                     var currentTime = new Date(msUTC + (dataSource.data[plasmoid.configuration.lastSelectedTimezone]["Offset"] * 1000));
-//
-//                     main.currentTime = currentTime;
-//                     return Qt.formatTime(currentTime, main.timeFormat);
-//                 }
-//
-//                 verticalAlignment: Text.AlignVCenter
-//                 horizontalAlignment: Text.AlignHCenter
-//             }
-//
-//             Components.Label {
-//                 id: timezoneLabel
-//
-//                 font.weight: timeLabel.font.weight
-//                 font.italic: timeLabel.font.italic
-//                 font.pixelSize: 1024
-//                 minimumPixelSize: 1
-//
-//                 visible: text.length > 0
-//                 horizontalAlignment: Text.AlignHCenter
-//                 verticalAlignment: Text.AlignVCenter
-//             }
-//         }
-//
-//         Components.Label {
-//             id: dateLabel
-//
-//             visible: main.showDate
-//
-//             font.family: timeLabel.font.family
-//             font.weight: timeLabel.font.weight
-//             font.italic: timeLabel.font.italic
-//             font.pixelSize: 1024
-//             minimumPixelSize: 1
-//
-//             horizontalAlignment: Text.AlignHCenter
-//             verticalAlignment: Text.AlignVCenter
-//         }
-//     }
-//     /*
-//      * end: Visible Elements
-//      *
-//      */
 
     Components.Label {
         id: sizehelperItem

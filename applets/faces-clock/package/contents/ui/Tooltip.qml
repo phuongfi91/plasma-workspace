@@ -48,7 +48,6 @@ Item {
         // add the dataengine TZ offset to it
         var dateTime = new Date(msUTC + (dataSource.data[zone]["Offset"] * 1000));
 
-        print("TIMEFORMAT:" + compactRepresentationItem.timeFormat);
         var formattedTime = Qt.formatTime(dateTime, compactRepresentationItem.timeFormat);
 
         if (dateTime.getDay() != dataSource.data["Local"]["DateTime"].getDay()) {

@@ -43,6 +43,10 @@ Item {
             source: "faces/BasicClock.qml"
         }
         ListElement {
+            name: "Analog clock"
+            source: "faces/analogclock.qml"
+        }
+        ListElement {
             name: "Digital clock"
             source: "faces/DigitalClock.qml"
         }
