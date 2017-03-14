@@ -8,7 +8,7 @@
   <group name="Appearance">
     <entry name="clockFace" type="string">
       <label>Face (theme) of the clock, should be a file under contents/ui/faces.</label>
-      <default>faces/DigitalClock.qml</default>
+      <default>basic</default>
     </entry>
     <entry name="showLocalTimezone" type="Bool">
       <label>Whether the timezone should be displayed when the clock is showing the local timezone.</label>

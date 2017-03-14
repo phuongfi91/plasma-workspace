@@ -51,7 +51,7 @@ Item {
 
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
     Plasmoid.compactRepresentation: Loader {
-        source: plasmoid.configuration.clockFace
+        source: "faces/" + plasmoid.configuration.clockFace + "/main.qml"
         //source: "faces/BasicClock.qml"
 
         //DigitalClock { }

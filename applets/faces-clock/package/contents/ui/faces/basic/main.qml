@@ -16,16 +16,24 @@
  */
 
 import QtQuick 2.6
-// import QtQuick.Layouts 1.1
-// import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as Components
-import org.kde.plasma.private.digitalclock 1.0
+import ".."
 
-Item {
+ClockBase {
     Components.Label {
         id: main
-        text: "13:37"
-        font.pixelSize: parent.height * 0.8
+        text: {
+            // get the time for the given timezone from the dataengine
+            var now = dataSource.data[plasmoid.configuration.lastSelectedTimezone]["DateTime"];
+            // get current UTC time
+            var msUTC = now.getTime() + (now.getTimezoneOffset() * 60000);
+            // add the dataengine TZ offset to it
+            var currentTime = new Date(msUTC + (dataSource.data[plasmoid.configuration.lastSelectedTimezone]["Offset"] * 1000));
+
+            //main.currentTime = currentTime;
+            return Qt.formatTime(currentTime, main.timeFormat);
+        }
+        font.pixelSize: Math.min((parent.height * 0.8), (parent.width / 4))
         anchors.centerIn: parent
     }
 }

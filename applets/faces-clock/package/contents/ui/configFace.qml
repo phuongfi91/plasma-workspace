@@ -39,17 +39,17 @@ Item {
         id: facesModel
 
         ListElement {
-            name: "Basic clock"
-            source: "faces/BasicClock.qml"
-        }
-        ListElement {
-            name: "Analog clock"
-            source: "faces/analogclock.qml"
-        }
-        ListElement {
             name: "Digital clock"
-            source: "faces/DigitalClock.qml"
+            face: "digital"
         }
+        ListElement {
+            name: "Basic clock"
+            face: "basic"
+        }
+//         ListElement {
+//             name: "Analog clock"
+//             face: "faces/analog/main.qml"
+//         }
     }
 
     PlasmaCore.DataSource {
@@ -95,7 +95,7 @@ Item {
                         var current = model.get(currentIndex)
                         print("Current face: " + current.name);
                         if (current) {
-                            cfg_clockFace = current.source
+                            cfg_clockFace = current.face
                             facePage.configurationChanged()
                         }
                     }
@@ -123,12 +123,12 @@ Item {
                             QtControls.Label {
                                 id: lbl
                                 anchors.centerIn: parent
-                                text: source
+                                text: face
                             }
 
                             Loader {
                                 anchors.fill: parent
-                                source: lbl.text
+                                source: "faces/" + face + "/main.qml"
                             }
                         }
                     }

@@ -501,6 +501,9 @@ Item {
     }
 
     function setupLabels() {
+        if (!timezoneLabel) {
+            return;
+        }
         var showTimezone = main.showLocalTimezone || (plasmoid.configuration.lastSelectedTimezone != "Local"
                                                         && dataSource.data["Local"]["Timezone City"] != dataSource.data[plasmoid.configuration.lastSelectedTimezone]["Timezone City"]);
 
@@ -563,8 +566,6 @@ Item {
                 main.lastDate = currentDate
             }
         }
-
-        print(dataSource.data.keys());
 
         var currentTZOffset = dataSource.data["Local"]["Offset"] / 60;
         if (currentTZOffset != tzOffset) {

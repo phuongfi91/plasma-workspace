@@ -20,6 +20,7 @@
 
 import QtQuick 2.6
 import org.kde.plasma.components 2.0 as Components
+import ".."
 
 ClockBase {
     id: main
@@ -62,7 +63,6 @@ ClockBase {
 
                 text: {
                     // get the time for the given timezone from the dataengine
-                    print("smconfig"+plasmoid.configuration.lastSelectedTimezone)
                     var now = dataSource.data[plasmoid.configuration.lastSelectedTimezone]["DateTime"];
                     // get current UTC time
                     var msUTC = now.getTime() + (now.getTimezoneOffset() * 60000);
