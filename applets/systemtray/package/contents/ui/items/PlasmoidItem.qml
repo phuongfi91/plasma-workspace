@@ -43,7 +43,10 @@ AbstractItem {
             applet.expanded = true;
         }
     }
-    onActivated: applet.expanded = true;
+    onActivated: {
+        dialog.visible = true;
+        applet.expanded = true;
+    }
     onContextMenu: {
         if (applet) {
             plasmoid.nativeInterface.showPlasmoidMenu(applet, 0, plasmoidContainer.hidden ? applet.height : 0);

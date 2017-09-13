@@ -43,7 +43,6 @@ StackView {
             activeApplet.fullRepresentationItem.anchors.centerIn = undefined;
             activeApplet.fullRepresentationItem.anchors.fill = undefined;
 
-            mainStack.forceActiveFocus();
             mainStack.replace({item: activeApplet.fullRepresentationItem, immediate: !dialog.visible, properties: {focus: true}});
             activeApplet.fullRepresentationItem.nextItemInFocusChain().forceActiveFocus()
         } else {
