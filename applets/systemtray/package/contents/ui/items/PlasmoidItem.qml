@@ -28,6 +28,7 @@ AbstractItem {
     iconItem: applet
     text: applet ? applet.title : ""
 
+    Accessible.description: i18n("Widget")
     itemId: applet ? applet.pluginName : ""
     category: applet ? plasmoid.nativeInterface.plasmoidCategory(applet) : "UnknownCategory"
     mainText: applet ? applet.toolTipMainText : ""

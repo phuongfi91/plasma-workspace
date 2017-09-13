@@ -24,6 +24,7 @@ import org.kde.plasma.components 2.0 as PlasmaComponents
 AbstractItem {
     id: taskIcon
 
+    Accessible.description: i18n("Application")
     itemId: Id
     text: Title
     mainText: ToolTipTitle != "" ? ToolTipTitle : Title
@@ -67,7 +68,7 @@ AbstractItem {
             if (!job.result) {
                 // On error try to invoke the context menu.
                 // Workaround primarily for apps using libappindicator.
-                openContextMenu();
+                openContextMenu({"x": 0,"x": 0});
             }
         });
     }
