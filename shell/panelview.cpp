@@ -36,6 +36,7 @@
 #include <kactioncollection.h>
 #include <kwindowsystem.h>
 #include <kwindoweffects.h>
+#include <KGlobalAccel>
 
 #include <Plasma/Containment>
 #include <Plasma/Package>
@@ -67,6 +68,7 @@ PanelView::PanelView(ShellCorona *corona, QScreen *targetScreen, QWindow *parent
        m_backgroundHints(Plasma::Types::StandardBackground),
        m_shellSurface(nullptr)
 {
+    setTitle("Plasma Panel");
     if (targetScreen) {
         setPosition(targetScreen->geometry().center());
         setScreenToFollow(targetScreen);
@@ -75,6 +77,21 @@ PanelView::PanelView(ShellCorona *corona, QScreen *targetScreen, QWindow *parent
     setResizeMode(QuickViewSharedEngine::SizeRootObjectToView);
     setClearBeforeRendering(true);
     setColor(QColor(Qt::transparent));
+
+    //TODO move to shell corona
+    //have logic that if we're already on a panel, go to the next panel
+    //re-use QWindow::setFocus for panelview?
+    QAction *focusPanel = new QAction("Focus Panel");
+    focusPanel->setObjectName("focusPanelAction");
+    KGlobalAccel::setGlobalShortcut(focusPanel, QKeySequence(Qt::ALT+Qt::CTRL+Qt::Key_M));
+
+    connect(focusPanel, &QAction::triggered, this, [this]() {
+            qDebug() << "Activated!!!";
+            //TODO restore this!
+            setFlags(Qt::FramelessWindowHint);
+            KWindowSystem::forceActiveWindow(winId());
+    });
+
     setFlags(Qt::FramelessWindowHint|Qt::WindowDoesNotAcceptFocus);
 
     connect(&m_theme, &Plasma::Theme::themeChanged, this, &PanelView::themeChanged);
