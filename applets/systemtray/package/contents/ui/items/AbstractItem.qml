@@ -97,6 +97,12 @@ PlasmaCore.ToolTipArea {
         }
     }
 
+    onActiveFocusChanged: {
+        //give it some visual feedback as well
+        if (hidden && activeFocus) {
+            root.hiddenLayout.hoveredItem = abstractItem
+        }
+    }
     Component.onCompleted: updateItemVisibility(abstractItem);
 
     //dangerous but needed due how repeater reparents

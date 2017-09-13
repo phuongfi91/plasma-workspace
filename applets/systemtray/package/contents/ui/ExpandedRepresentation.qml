@@ -37,12 +37,15 @@ Item {
 
     PlasmaComponents.ToolButton {
         id: pinButton
+        Accessible.role: Accessible.CheckBox
+        tooltip: i18n("Don't hide popup on focus loss");
         anchors.right: parent.right
         width: Math.round(units.gridUnit * 1.25)
         height: width
         checkable: true
         iconSource: "window-pin"
         z: 2
+        onClicked: print(pinButton.nextItemInFocusChain(true))
     }
 
     PlasmaExtras.Heading {
