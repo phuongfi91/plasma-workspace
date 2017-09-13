@@ -57,6 +57,7 @@ Column {
                     Components.CheckBox {
                         id: pmCheckBox
                         anchors.centerIn: parent
+                        Accessible.name: enableLabel.text
                         checked: true
                         // we don't want to mess with the checked state but still reflect that changing it might not yield the desired result
                         opacity: inhibitions.length > 0 ? 0.5 : 1
@@ -67,6 +68,7 @@ Column {
                 }
 
                 Components.Label {
+                    id: enableLabel
                     Layout.fillWidth: true
                     text: i18n("Enable Power Management")
                 }

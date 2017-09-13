@@ -18,7 +18,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.0
+import QtQuick 2.6
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as Components
 import org.kde.plasma.extras 2.0 as PlasmaExtras
@@ -26,7 +26,6 @@ import org.kde.kquickcontrolsaddons 2.0
 
 FocusScope {
     id: dialog
-    focus: true
 
     property alias model: batteryList.model
     property bool pluggedIn

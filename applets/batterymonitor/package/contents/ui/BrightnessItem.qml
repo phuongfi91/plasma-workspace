@@ -54,6 +54,7 @@ RowLayout {
         Components.Slider {
             id: brightnessSlider
             width: parent.width
+            Accessible.name: brightnessLabel.text
             // Don't allow the slider to turn off the screen
             // Please see https://git.reviewboard.kde.org/r/122505/ for more information
             minimumValue: maximumValue > 100 ? 1 : 0
