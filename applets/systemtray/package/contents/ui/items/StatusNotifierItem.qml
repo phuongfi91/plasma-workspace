@@ -59,6 +59,18 @@ AbstractItem {
         }
     }
 
+    onActivated: {
+        var service = statusNotifierSource.serviceForSource(DataEngineSource);
+        var operation = service.operationDescription("Activate");
+        var job = service.startOperationCall(operation);
+        job.finished.connect(function () {
+            if (!job.result) {
+                // On error try to invoke the context menu.
+                // Workaround primarily for apps using libappindicator.
+                openContextMenu();
+            }
+        });
+    }
     onClicked: {
         var pos = plasmoid.nativeInterface.popupPosition(taskIcon, 0, 0);
 

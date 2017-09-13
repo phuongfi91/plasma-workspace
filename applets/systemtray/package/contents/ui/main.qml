@@ -137,6 +137,7 @@ MouseArea {
     Component.onCompleted: {
         //script, don't bind
         plasmoid.nativeInterface.allowedPlasmoids = initializePlasmoidList();
+        root.forceActiveFocus();
     }
 
     function initializePlasmoidList() {
@@ -284,52 +285,68 @@ MouseArea {
         }
     }
 
-    //Main Layout
-    Flow {
-        id: tasksRow
-        spacing: 0
-        height: parent.height - (vertical && expander.visible ? expander.height : 0)
-        width: parent.width - (vertical || !expander.visible ? 0 : expander.width)
-        property string skipItems
-        flow: vertical ? Flow.LeftToRight : Flow.TopToBottom
-        //To make it look centered
-        y: Math.round(height/2 - childrenRect.height/2)
-        x: (expander.visible && LayoutMirroring.enabled ? expander.width : 0) + Math.round(width/2 - childrenRect.width/2)
+    FocusScope {
+        anchors.fill: parent
+        //Main Layout
+        Flow {
+            id: tasksRow
+            spacing: 0
+            height: parent.height - (vertical && expander.visible ? expander.height : 0)
+            width: parent.width - (vertical || !expander.visible ? 0 : expander.width)
+            property string skipItems
+            flow: vertical ? Flow.LeftToRight : Flow.TopToBottom
+            //To make it look centered
+            y: Math.round(height/2 - childrenRect.height/2)
+            x: (expander.visible && LayoutMirroring.enabled ? expander.width : 0) + Math.round(width/2 - childrenRect.width/2)
 
 
-        //Do spacing with margins, to correctly compute the number of lines
-        property QtObject marginHints: QtObject {
-            property int left: Math.round(units.smallSpacing / 2)
-            property int top: Math.round(units.smallSpacing / 2)
-            property int right: Math.round(units.smallSpacing / 2)
-            property int bottom: Math.round(units.smallSpacing / 2)
+            //Do spacing with margins, to correctly compute the number of lines
+            property QtObject marginHints: QtObject {
+                property int left: Math.round(units.smallSpacing / 2)
+                property int top: Math.round(units.smallSpacing / 2)
+                property int right: Math.round(units.smallSpacing / 2)
+                property int bottom: Math.round(units.smallSpacing / 2)
+            }
+
+            //add doesn't seem to work used in conjunction with stackBefore/stackAfter
+            /*add: Transition {
+                NumberAnimation {
+                    property: "scale"
+                    from: 0
+                    to: 1
+                    easing.type: Easing.InQuad
+                    duration: units.longDuration
+                }
+            }
+            move: Transition {
+                NumberAnimation {
+                    properties: "x,y"
+                    easing.type: Easing.InQuad
+                    duration: units.longDuration
+                }
+            }*/
         }
 
-        //add doesn't seem to work used in conjunction with stackBefore/stackAfter
-        /*add: Transition {
-            NumberAnimation {
-                property: "scale"
-                from: 0
-                to: 1
-                easing.type: Easing.InQuad
-                duration: units.longDuration
-            }
-        }
-        move: Transition {
-            NumberAnimation {
-                properties: "x,y"
-                easing.type: Easing.InQuad
-                duration: units.longDuration
-            }
-        }*/
-    }
 
-    ExpanderArrow {
-        id: expander
-        anchors {
-            fill: parent
-            leftMargin: vertical ? 0 : parent.width - implicitWidth
-            topMargin: vertical ? parent.height - implicitHeight : 0
+
+        ExpanderArrow {
+            id: expander
+            activeFocusOnTab: true
+            Accessible.role: Accessible.Button
+            Accessible.name: i18n("Expand Systemtray")
+            Keys.onPressed: {
+                switch (event.key) {
+                case Qt.Key_Space:
+                case Qt.Key_Enter:
+                case Qt.Key_return:
+                    root.expanded = !root.expanded
+                }
+            }
+            anchors {
+                fill: parent
+                leftMargin: vertical ? 0 : parent.width - implicitWidth
+                topMargin: vertical ? parent.height - implicitHeight : 0
+            }
         }
     }
 

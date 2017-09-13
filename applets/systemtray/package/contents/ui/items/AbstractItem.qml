@@ -17,7 +17,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.1
+import QtQuick 2.6
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 
@@ -27,9 +27,12 @@ PlasmaCore.ToolTipArea {
     height: effectiveItemSize + marginHints.top + marginHints.bottom
     width: labelVisible ? parent.width : effectiveItemSize + marginHints.left + marginHints.right
 
+    activeFocusOnTab: true
     property real effectiveItemSize: hidden ? root.hiddenItemSize : root.itemSize
     property string itemId
     property string category
+    Accessible.role: Accessible.ListItem
+    Accessible.name: label.text
     property alias text: label.text
     property bool hidden: parent.objectName == "hiddenTasksColumn"
     property QtObject marginHints: parent.marginHints
@@ -42,11 +45,20 @@ PlasmaCore.ToolTipArea {
     signal clicked(var mouse)
     signal wheel(var wheel)
     signal contextMenu(var mouse)
+    signal activated()
 
     property bool forcedHidden: plasmoid.configuration.hiddenItems.indexOf(itemId) !== -1
     property bool forcedShown: plasmoid.configuration.showAllItems || plasmoid.configuration.shownItems.indexOf(itemId) !== -1
     property bool categoryShown: shownCategories.indexOf(category) != -1;
 
+    Keys.onPressed: {
+        switch (event.key) {
+        case Qt.Key_Space:
+        case Qt.Key_Enter:
+        case Qt.Key_return:
+            activated();
+        }
+    }
     readonly property int effectiveStatus: {
         if (!categoryShown) {
             return PlasmaCore.Types.HiddenStatus
