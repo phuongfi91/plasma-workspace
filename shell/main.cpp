@@ -136,12 +136,13 @@ int main(int argc, char *argv[])
 
         qApp->setProperty("org.kde.KActivities.core.disableAutostart", true);
 
-        QObject::connect(ShellManager::instance(), &ShellManager::shellChanged,
-                         ShellManager::instance(),
-                            [layoutUrl]() {
-                                new CoronaTestHelper(ShellManager::instance()->corona());
-                            }
-                        );
+        auto shellManager = new ShellManager(&app);
+        //shellManager doesn't init till the next event loop, so this is safe
+        QObject::connect(shellManager, &ShellManager::shellChanged,
+                         shellManager, [=]() {
+                            new CoronaTestHelper(shellManager->corona());
+                        });
+        return app.exec();
     }
 
     if (cliOptions.isSet(standaloneOption)) {
@@ -162,7 +163,6 @@ int main(int argc, char *argv[])
 
     KDBusService service(KDBusService::Unique);
 
-    QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, ShellManager::instance(), &QObject::deleteLater);
-
+    new ShellManager(&app);
     return app.exec();
 }

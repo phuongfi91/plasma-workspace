@@ -39,7 +39,7 @@ namespace Plasma {
 class ShellManager: public QObject {
     Q_OBJECT
 public:
-    static ShellManager * instance();
+    ShellManager(QObject *parent);
     ~ShellManager() override;
 
     static bool s_standaloneOption;
@@ -63,7 +63,6 @@ private Q_SLOTS:
     void loadHandlers();
 
 private:
-    ShellManager();
 
     class Private;
     const QScopedPointer<Private> d;

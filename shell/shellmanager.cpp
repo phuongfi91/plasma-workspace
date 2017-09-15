@@ -67,8 +67,9 @@ public:
     ShellCorona * corona;
 };
 
-ShellManager::ShellManager()
-    : d(new Private())
+ShellManager::ShellManager(QObject *parent):
+    QObject(parent),
+    d(new Private())
 {
     //we have to ensure this is executed after QCoreApplication::exec()
     QMetaObject::invokeMethod(this, "loadHandlers", Qt::QueuedConnection);
@@ -237,15 +238,6 @@ void ShellManager::updateShell()
     d->currentHandler->setProperty("loaded", true);
 
     emit shellChanged(d->currentHandler->property("shell").toString());
-}
-
-ShellManager * ShellManager::instance()
-{
-    static ShellManager* manager = nullptr;
-    if (!manager) {
-         manager = new ShellManager;
-    }
-    return manager;
 }
 
 Plasma::Corona* ShellManager::corona() const
