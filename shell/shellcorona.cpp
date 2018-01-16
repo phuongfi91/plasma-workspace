@@ -223,6 +223,21 @@ ShellCorona::ShellCorona(QObject *parent)
 
     new Osd(m_config, this);
 
+    connect(this, &Plasma::Corona::inputModeChanged,
+            this, [this] (Plasma::Types::InputMode mode) {
+                QMutableHashIterator<const Plasma::Containment *, PanelView *> it(m_panelViews);
+                while (it.hasNext()) {
+                    it.next();
+                    PanelView *panelView = it.value();
+
+                    if (!panelView->containment()->shownInInputModes().contains(inputMode())) {
+                        m_waitingPanels << panelView->containment();
+                        it.remove();
+                        delete panelView;
+                    }
+                }
+                createWaitingPanels();
+            });
     // catch when plasmarc changes, so we e.g. enable/disable the OSd
     m_configPath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QLatin1Char('/') + m_config->name();
     KDirWatch::self()->addFile(m_configPath);
@@ -1274,6 +1289,10 @@ void ShellCorona::createWaitingPanels()
             requestedScreen = 0;
         }
 
+        if (!cont->shownInInputModes().contains(inputMode())) {
+            stillWaitingPanels << cont;
+            continue;
+        }
         if (!m_desktopViewforId.contains(requestedScreen)) {
             stillWaitingPanels << cont;
             continue;
@@ -2069,6 +2088,7 @@ void ShellCorona::activateLauncherMenu()
         const auto applets = it.key()->applets();
         for (auto applet : applets) {
             const auto provides = KPluginMetaData::readStringList(applet->pluginMetaData().rawData(), QStringLiteral("X-Plasma-Provides"));
+
             if (provides.contains(QLatin1String("org.kde.plasma.launchermenu"))) {
                 if (!applet->globalShortcut().isEmpty()) {
                     emit applet->activated();
