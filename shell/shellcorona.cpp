@@ -2090,7 +2090,7 @@ void ShellCorona::activateLauncherMenu()
             const auto provides = KPluginMetaData::readStringList(applet->pluginMetaData().rawData(), QStringLiteral("X-Plasma-Provides"));
 
             if (provides.contains(QLatin1String("org.kde.plasma.launchermenu"))) {
-                if (!applet->globalShortcut().isEmpty()) {
+                if (applet->status() != Plasma::Types::HiddenStatus && !applet->globalShortcut().isEmpty()) {
                     emit applet->activated();
                     return;
                 }
