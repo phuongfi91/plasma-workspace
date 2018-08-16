@@ -1,6 +1,9 @@
+add_definitions(-DTRANSLATION_DOMAIN=\"plasma_containmentactions_switchdesktop\")
+
 set(switchdesktop_SRCS
     desktop.cpp
 )
+ki18n_wrap_ui(switchdesktop_SRCS config.ui)
 
 add_library(plasma_containmentactions_switchdesktop MODULE ${switchdesktop_SRCS})
 

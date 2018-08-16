@@ -22,6 +22,8 @@
 
 #include <plasma/containmentactions.h>
 
+#include "ui_config.h"
+
 class QAction;
 
 class SwitchDesktop : public Plasma::ContainmentActions
@@ -36,11 +38,20 @@ class SwitchDesktop : public Plasma::ContainmentActions
         void performNextAction() override;
         void performPreviousAction() override;
 
+        void init(const KConfigGroup &config);
+        QWidget *createConfigurationInterface(QWidget* parent) override;
+        void configurationAccepted() override;
+        void restore(const KConfigGroup &config) override;
+        void save(KConfigGroup &config) override;
+
     private Q_SLOTS:
         void switchTo();
 
     private:
         QHash<int, QAction *> m_actions;
+
+        Ui::Config m_ui;
+        bool m_wrapDesktop = false;
 };
 
 

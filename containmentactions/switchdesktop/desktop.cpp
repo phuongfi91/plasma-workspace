@@ -18,6 +18,7 @@
  */
 
 #include "desktop.h"
+#include "algorithm"
 
 #include <QAction>
 #include <QWheelEvent>
@@ -85,14 +86,44 @@ void SwitchDesktop::performNextAction()
 {
     const int numDesktops = KWindowSystem::numberOfDesktops();
     const int currentDesktop = KWindowSystem::currentDesktop();
-    KWindowSystem::setCurrentDesktop(currentDesktop % numDesktops + 1);
+    int nextDesktop = m_wrapDesktop ? 
+        currentDesktop % numDesktops + 1 : std::min(currentDesktop + 1, numDesktops);
+    KWindowSystem::setCurrentDesktop(nextDesktop);
 }
 
 void SwitchDesktop::performPreviousAction()
 {
     const int numDesktops = KWindowSystem::numberOfDesktops();
     const int currentDesktop = KWindowSystem::currentDesktop();
-    KWindowSystem::setCurrentDesktop((numDesktops + currentDesktop - 2) % numDesktops + 1);
+    int previousDesktop = m_wrapDesktop ? 
+        (numDesktops + currentDesktop - 2) % numDesktops + 1 : std::max(currentDesktop - 1, 1);
+    KWindowSystem::setCurrentDesktop(previousDesktop);
+}
+
+void SwitchDesktop::init(const KConfigGroup &config) {
+
+}
+
+QWidget *SwitchDesktop::createConfigurationInterface(QWidget *parent) {
+    QWidget *widget = new QWidget(parent);
+    m_ui.setupUi(widget);
+    widget->setWindowTitle(i18nc("plasma_containmentactions_switchdesktop", "Configure Switch Desktop Plugin"));
+
+    m_ui.wrapDesktop->setChecked(m_wrapDesktop);
+
+    return widget;
+}
+
+void SwitchDesktop::configurationAccepted() {
+    m_wrapDesktop = m_ui.wrapDesktop->isChecked();
+}
+
+void SwitchDesktop::restore(const KConfigGroup &config) {
+    m_wrapDesktop = config.readEntry(QStringLiteral("wrapDesktop"), false);
+}
+
+void SwitchDesktop::save(KConfigGroup &config) {
+    config.writeEntry(QStringLiteral("wrapDesktop"), m_wrapDesktop);
 }
 
 K_EXPORT_PLASMA_CONTAINMENTACTIONS_WITH_JSON(switchdesktop, SwitchDesktop, "plasma-containmentactions-switchdesktop.json")
